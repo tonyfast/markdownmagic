@@ -1,11 +1,11 @@
 
-# jademagic
-> an [IPython](http://ipython.org/) [magic](https://ipython.org/ipython-doc/dev/interactive/tutorial.html) for authoring HTML in [Jade ne Pug](https://github.com/pugjs).
+# markdownmagic
+> an [IPython](http://ipython.org/) [magic](https://ipython.org/ipython-doc/dev/interactive/tutorial.html) for authoring Interactive Data-Driven notebooks with basic [Markdown]().
 
 ## Install
 From the command line (or with `!` in a notebook cell):
 ```bash
-pip install jademagic
+pip install markdownmagic
 ```
 
 ## Enable
@@ -14,14 +14,21 @@ In the notebook, you can use the `%load_ext` or `%reload_ext` line magic.
 
 
 ```python
-%reload_ext jademagic
+%reload_ext autoreload
+%autoreload 2
+```
+
+
+```python
+from markdownmagic import  environment
+mdmagic = environment()
 ```
 
 ### Configuration
-In your profile's `ipython_kernel_config.py`, you can add the following line to automatically load `jademagic` into all your running kernels:
+In your profile's `ipython_kernel_config.py`, you can add the following line to automatically load `markdownmagic` into all your running kernels:
 
 ```python
-c.InteractiveShellApp.extensions = ['jade_magic']
+c.InteractiveShellApp.extensions = ['markdownmagic']
 ```
 
 ## Use
@@ -29,32 +36,22 @@ The `%%jade` cell magic will either act as simple parser:
 
 
 ```python
-%%jade
-ul
-    each x in [1, 2, 3, 4, 5]
-        li: i.fa.fa-gift(class='fa-#{x}x')
+%%markdown
+# This is markdown
+
+Magic options for markdown:
+    
+# How is this different
 ```
 
 
-    <IPython.core.display.Javascript object>
 
 
+# This is markdown
 
-
-
-
-<ul>
-  <li><i class="fa fa-gift fa-1x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-2x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-3x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-4x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-5x"></i>
-  </li>
-</ul>
+Magic options for markdown:
+    
+# How is this different
 
 
 
@@ -68,51 +65,23 @@ _
 
 
 
-
-<ul>
-  <li><i class="fa fa-gift fa-1x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-2x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-3x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-4x"></i>
-  </li>
-  <li><i class="fa fa-gift fa-5x"></i>
-  </li>
-</ul>
+# This is markdown
 
 
 
 Or will update a named variable with the parsed document:
 
-
-```python
-%%jade spock
-i.fa.fa-spock.fa-5x
-```
-
-
-    <IPython.core.display.Javascript object>
-
-
-
-```python
-spock
-```
-
-
-
-
-    '<i class="fa fa-spock fa-5x"></i>'
-
-
-
 ## Contribute
-[Issues](https://github.com/bollwyvl/jademagic/issues) and [pull requests](https://github.com/bollwyvl/jademagic/pulls) welcome!
+[Issues](https://github.com/tonyfast/markdownmagic/issues) and [pull requests](https://github.com/tonyfast/markdownmagic/pulls) welcome!
 
 ## License
-`jademagic` is released as free software under the [BSD 3-Clause license](./LICENSE).
+
+`markdownmagic` is released as free software under the [BSD 3-Clause license](./LICENSE).
 
 ## Thank
-- [@lbustelo](http://github.com/lbustelo) for challenging me to an alternative to `%%html`
+
+
+
+```python
+
+```
