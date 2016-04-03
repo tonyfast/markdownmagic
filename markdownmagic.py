@@ -22,35 +22,48 @@ from mistune import (
     Renderer,
 )
 
+from pyquery import PyQuery
+
+
 import yaml
 
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 
-class LiterateRenderer(Renderer):
-    """Executes code for on Markdown code fences for the language ``python``"""
-    def __init__(self, ip, *args, **kwargs):
-        self.ip = ip
-        super().__init__(*args, **kwargs)
+class LiterateMarkdown(mistune.Markdown):
+    _filter_prefix = 'execute_'
+    def __init__( self, env=Environment(), *args, **kwargs ):
+        self.env = env
+        super().__init__( *args, **kwargs )
+    def output_code(self):
+        txt, lang = [
+            self.token['text'], 
+            self.token['lang']
+        ]
+        lang = lang if lang else ''
+        output = """<hr>%s<hr>"""%super().output_code()
+        src = """"""
+        filter_name = self._filter_prefix+lang
+        if filter_name in self.env.filters:
+            src = self.env.filters[filter_name](txt)
+        if isinstance(src, str) and src:
+            output += """<script>%s</script>"""%src
+        return  output 
 
-    def block_code(self, text, lang):
-        if lang in ['python']:
-            self.ip.run_code(text)
-        return super().block_code(text, lang)
-
-
-class MarkdownerTemplate(IPython.core.display.Markdown):
+class MarkdownerTemplate(IPython.core.display.HTML):
     def __init__(
         self,
-        env=Environment(),
-        ip=get_ipython(),
+        cell,
         frontmatter="""""",
         *args,
         **kwargs
     ):
-        self.env = env
-        self.ip = ip
+        self.cell = cell
+        self.env = self.cell.env
+        self.ip = self.cell.ip
+        self.src = """"""
+        self.renderer = LiterateMarkdown(env=self.env,renderer=Renderer(escape=False) )
         self.frontmatter = frontmatter
         super().__init__(*args, **kwargs)
         if self.frontmatter:
@@ -59,6 +72,7 @@ class MarkdownerTemplate(IPython.core.display.Markdown):
                     self.frontmatter
                 ).render(self.ip.user_ns)
             )
+            self.frontmatter = self.frontmatter if self.frontmatter else {}
         else:
             self.frontmatter = {}
         self.template = self.env.from_string(self.data)
@@ -71,11 +85,9 @@ class MarkdownerTemplate(IPython.core.display.Markdown):
     def __mul__(self, payload):
         return '\n'.join([self.template.render(**load) for load in payload])
 
-    def _repr_markdown_(self):
-        self.env.filters['mistune_renderer'](self.data)
-        return self + {**self.frontmatter, **self.ip.user_ns}
-
-
+    def _repr_html_(self):
+        return self.renderer( self + {**self.frontmatter, **self.ip.user_ns} )
+        
 @magics_class
 class environment(Magics):
     """
@@ -90,9 +102,8 @@ class environment(Magics):
 
     def __init__(self, env=Environment(loader=DictLoader({}))):
         self.env = env
-        self.env.filters['mistune_renderer'] = mistune.Markdown(
-            renderer=LiterateRenderer(ip=self.ip, escape=False)
-        )
+        ip = self.ip
+        self.env.filters['execute_python'] = lambda s: ip.run_cell(s)
         super().__init__()
         self.ip.register_magics(self)
 
@@ -114,9 +125,8 @@ class environment(Magics):
         try:
             # Literate python execution
             display = MarkdownerTemplate(
-                self.env,
-                self.ip,
-                frontmatter,
+                self,
+                frontmatter=frontmatter,
                 data=cell
             )
         except Exception as err:
