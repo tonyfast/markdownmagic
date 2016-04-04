@@ -115,7 +115,7 @@ class environment(Magics):
         nargs="?",
         help="""Name of local variable to set to parsed value"""
     )
-     @magic_arguments.argument(
+    @magic_arguments.argument(
         "-n", "--nodisplay",
         default=False,
         action="store_true",
