@@ -1,3 +1,4 @@
+pyyaml
 mistune>=0.7.1
 jinja2>=2.8
 IPython
