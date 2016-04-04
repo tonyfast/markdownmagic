@@ -22,9 +22,6 @@ from mistune import (
     Renderer,
 )
 
-from pyquery import PyQuery
-
-
 import yaml
 
 __version_info__ = (0, 1, 0)
