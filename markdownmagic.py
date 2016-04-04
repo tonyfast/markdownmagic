@@ -115,6 +115,12 @@ class environment(Magics):
         nargs="?",
         help="""Name of local variable to set to parsed value"""
     )
+     @magic_arguments.argument(
+        "-n", "--nodisplay",
+        default=False,
+        action="store_true",
+        help="""set variable in window._yaml"""
+    )
     def markdown(self, line, cell):
         line = line.strip()
         args = magic_arguments.parse_argstring(self.markdown, line)
@@ -135,4 +141,5 @@ class environment(Magics):
 
         if args.name:
             self.ip.user_ns[args.name] = display
-        return display
+        if not args.nodisplay:
+            return display
