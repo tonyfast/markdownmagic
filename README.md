@@ -5,7 +5,7 @@
 ## Install
 From the command line (or with `!` in a notebook cell):
 ```bash
-pip install markdownmagic
+pip install git+https://github.com/tonyfast/markdownmagic
 ```
 
 ## Enable
