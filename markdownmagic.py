@@ -28,7 +28,7 @@ class LiterateMarkdown(mistune.Markdown):
     _filter_prefix = 'execute_'
     def render( self, m, data={},frontmatter={}):
         self.template = self.env.from_string(m)
-        return self.template.render({frontmatter, **self.ip.user_ns, **data})
+        return self.template.render({**frontmatter, **self.ip.user_ns, **data})
     def _execute_python( self, code ):
         self.ip.run_cell(code)
         return """"""
