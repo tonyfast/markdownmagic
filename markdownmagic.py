@@ -24,83 +24,72 @@ from mistune import (
 
 import yaml
 
-__version_info__ = (0, 1, 0)
-__version__ = '.'.join(map(str, __version_info__))
-
-
 class LiterateMarkdown(mistune.Markdown):
     _filter_prefix = 'execute_'
-    def __init__( self, env=Environment(), *args, **kwargs ):
-        self.env = env
-        super().__init__( *args, **kwargs )
+    def render( self, m, data={}):
+        self.template = self.env.from_string(m)
+        return self.template.render({**self.frontmatter, **self.ip.user_ns, **data})
+    def _execute_python( self, code ):
+        self.ip.run_cell(code)
+        return """"""
+    def __init__( self, *args, **kwargs ):
+        self.env = jinja2.Environment()
+        self.env.filters['execute_python'] = self._execute_python
+        self.env.filters['execute_javascript'] = lambda s: s
+        self.ip = IPython.get_ipython()
+        super().__init__( *args, **kwargs )   
+    
+    def __call__(self, text, data={}):
+        if text.startswith('---'):
+            frontmatter, text = text.lstrip('---').split('---', 1)
+            self.frontmatter = yaml.load(
+                self.render(frontmatter)
+            )
+        else:
+            self.frontmatter = {}
+        text = self.render(text, data )
+        return self.parse(text), self.template
+                          
     def output_code(self):
-        txt, lang = [
-            self.token['text'], 
-            self.token['lang']
-        ]
-        lang = lang if lang else ''
-        output = """<hr>%s<hr>"""%super().output_code()
         src = """"""
+        lang = self.token['lang'] if self.token['lang'] else ''
+        output = """<hr>%s<hr>"""%super().output_code()
+        
         filter_name = self._filter_prefix+lang
         if filter_name in self.env.filters:
-            src = self.env.filters[filter_name](txt)
+            src = self.env.filters[filter_name](self.token['text'])
         if isinstance(src, str) and src:
+            """If the filter outputs a script then stick it in a script tag."""
             output += """<script>%s</script>"""%src
         return  output 
 
-class MarkdownerTemplate(IPython.core.display.HTML):
-    def __init__(
-        self,
-        cell,
-        frontmatter="""""",
-        *args,
-        **kwargs
-    ):
-        self.cell = cell
-        self.env = self.cell.env
-        self.ip = self.cell.ip
-        self.src = """"""
-        self.renderer = LiterateMarkdown(env=self.env,renderer=Renderer(escape=False) )
-        self.frontmatter = frontmatter
-        super().__init__(*args, **kwargs)
-        if self.frontmatter:
-            self.frontmatter = yaml.load(
-                self.env.from_string(
-                    self.frontmatter
-                ).render(self.ip.user_ns)
-            )
-            self.frontmatter = self.frontmatter if self.frontmatter else {}
-        else:
-            self.frontmatter = {}
-        self.template = self.env.from_string(self.data)
-
-    def __add__(self, payload):
-        if payload in ['*']:
-            payload = self.ip.user_ns
-        return self.template.render(**payload)
-
-    def __mul__(self, payload):
-        return '\n'.join([self.template.render(**load) for load in payload])
-
+class DisplayTemplate(IPython.display.HTML):
+    def __init__( self,  *args, renderer=mistune.markdown, **kwargs ):
+        self.renderer = renderer
+        super().__init__(*args, **kwargs )
     def _repr_html_(self):
-        return self.renderer( self + {**self.frontmatter, **self.ip.user_ns} )
-        
+        data, self.template = self.renderer( self.data )
+        return data
+    
 @magics_class
 class environment(Magics):
     """
     Literate Python in using Markdown.
-
     Example:
-
         %%markdown
         # This is a title with {{data}}
     """
-    ip = get_ipython()
+    def _execute_python( self, code ):
+        self.ip.run_cell(code)
+        return """"""
 
+    ip = get_ipython()
     def __init__(self, env=Environment(loader=DictLoader({}))):
         self.env = env
-        ip = self.ip
-        self.env.filters['execute_python'] = lambda s: ip.run_cell(s)
+        self.env.filters['execute_python'] = lambda s: self._execute_python(s)
+        self.env.filters['execute_javascript'] = lambda s: s
+        self.renderer = LiterateMarkdown(env=self.env,renderer=Renderer(escape=False) )
+        self.display = DisplayTemplate
         super().__init__()
         self.ip.register_magics(self)
 
@@ -121,21 +110,12 @@ class environment(Magics):
     def markdown(self, line, cell):
         line = line.strip()
         args = magic_arguments.parse_argstring(self.markdown, line)
-        if cell.startswith('---'):
-            frontmatter, cell = cell.lstrip('---').split('---', 1)
-        else:
-            frontmatter = {}
         try:
             # Literate python execution
-            display = MarkdownerTemplate(
-                self,
-                frontmatter=frontmatter,
-                data=cell
-            )
+            display = self.display( cell,renderer=self.renderer)
         except Exception as err:
             print(err)
             return
-
         if args.name:
             self.ip.user_ns[args.name] = display
         if not args.nodisplay:
