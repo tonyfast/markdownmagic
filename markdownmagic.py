@@ -15,6 +15,7 @@ from IPython.core.magic import (
 from jinja2 import (
     Environment,
     DictLoader,
+    Template,
 )
 
 import mistune
@@ -24,53 +25,68 @@ from mistune import (
 
 import yaml
 
-class LiterateMarkdown(mistune.Markdown):
+class TemplateMath(Template):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+    def __add__(self, payload):
+        if payload in ['*']:
+            payload = self.ip.user_ns
+        return self.render(**payload)
+    def __mul__(self, payload):
+        return '\n'.join([self + load for load in payload])
+    
+class LiterateEnvironment( Environment ):
+    ip = get_ipython()
     _filter_prefix = 'execute_'
-    def render( self, m, data={},frontmatter={}):
-        self.template = self.env.from_string(m)
-        return self.template.render({**frontmatter, **self.ip.user_ns, **data})
     def _execute_python( self, code ):
         self.ip.run_cell(code)
         return """"""
-    def __init__( self, *args, **kwargs ):
-        self.env = Environment()
-        self.env.filters['execute_python'] = self._execute_python
-        self.env.filters['execute_javascript'] = lambda s: s
-        self.ip = IPython.get_ipython()
-        super().__init__( *args, **kwargs )   
-    
-    def __call__(self, text, data={}):
-        if text.startswith('---'):
-            frontmatter, text = text.lstrip('---').split('---', 1)
-            self.frontmatter = yaml.load(
-                self.render(frontmatter)
-            )
-        else:
-            self.frontmatter = {}
-        text = self.render(text, data=data,frontmatter=self.frontmatter )
-        return self.parse(text), self.template
-                          
-    def output_code(self):
-        src = """"""
-        lang = self.token['lang'] if self.token['lang'] else ''
-        output = """<hr>%s<hr>"""%super().output_code()
-        
-        filter_name = self._filter_prefix+lang
-        if filter_name in self.env.filters:
-            src = self.env.filters[filter_name](self.token['text'])
-        if isinstance(src, str) and src:
-            """If the filter outputs a script then stick it in a script tag."""
-            output += """<script>%s</script>"""%src
-        return  output 
 
-class DisplayTemplate(IPython.display.HTML):
-    def __init__( self,  *args, renderer=mistune.markdown, **kwargs ):
-        self.renderer = renderer
-        super().__init__(*args, **kwargs )
-    def _repr_html_(self):
-        data, self.template = self.renderer( self.data )
-        return data
-    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters[self._filter_prefix+'python'] = self._execute_python
+        self.filters[self._filter_prefix+'javascript'] = lambda s: s
+        self.template_class = TemplateMath
+        
+class LiterateBlockLexer(mistune.BlockLexer):
+    def _render( self, m, data={},frontmatter={}):
+        template = self.env.from_string(m, template_class=TemplateMath)
+        return template + {**frontmatter, **self.env.ip.user_ns, **data} 
+
+    def __init__( self, env = LiterateEnvironment(), *args, **kwargs ):
+        self.env = env        
+        super().__init__( *args, **kwargs )   
+
+    def parse(self, text, *args, **kwargs):
+        self.tokens = []
+        tokens = super().parse(text, *args, **kwargs)
+        updated_tokens= []
+        for token in tokens:
+            if token['type'] in ['code']:
+                src = """"""
+                lang = token['lang'] if token['lang'] else ''
+                filter_name = self.env._filter_prefix+lang
+                updated_tokens.extend([{'type': 'hrule'}, token, {'type': 'hrule'}])
+                if filter_name in self.env.filters:
+                    token['text'] = self._render(token['text'])
+                    src = self.env.filters[filter_name](token['text'])
+                    updated_tokens.append({
+                            'type': 'open_html', 
+                            'tag': 'script', 
+                            'extra': " type='text\/javascript'", 
+                            'text': src
+                        })
+            else:
+                token['text'] = self._render(token['text'])
+                updated_tokens.append(token)
+        tokens=updated_tokens
+        return tokens
+
+class LiterateMarkdown( mistune.Markdown ):
+    def __init__( self, env=LiterateEnvironment(), *args, **kwargs ):
+        self.env = env
+        super().__init__( block=LiterateBlockLexer(env=self.env), *args, **kwargs )        
+
 @magics_class
 class environment(Magics):
     """
@@ -79,19 +95,11 @@ class environment(Magics):
         %%markdown
         # This is a title with {{data}}
     """
-    def _execute_python( self, code ):
-        self.ip.run_cell(code)
-        return """"""
-
-    ip = get_ipython()
-    def __init__(self, env=Environment(loader=DictLoader({}))):
+    def __init__(self, env=LiterateEnvironment(loader=DictLoader({}))):
         self.env = env
-        self.env.filters['execute_python'] = lambda s: self._execute_python(s)
-        self.env.filters['execute_javascript'] = lambda s: s
-        self.renderer = LiterateMarkdown(env=self.env,renderer=Renderer(escape=False) )
-        self.display = DisplayTemplate
+        self.renderer = LiterateMarkdown(env=env,renderer=Renderer(escape=False))
         super().__init__()
-        self.ip.register_magics(self)
+        self.env.ip.register_magics(self)
 
     @cell_magic
     @magic_arguments.magic_arguments()
@@ -105,14 +113,14 @@ class environment(Magics):
         "-n", "--nodisplay",
         default=False,
         action="store_true",
-        help="""set variable in window._yaml"""
+        help="""Show the output"""
     )
     def markdown(self, line, cell):
         line = line.strip()
         args = magic_arguments.parse_argstring(self.markdown, line)
         try:
             # Literate python execution
-            display = self.display( cell,renderer=self.renderer)
+            display = IPython.display.HTML( self.renderer( cell ))
         except Exception as err:
             print(err)
             return
