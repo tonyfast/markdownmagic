@@ -33,7 +33,7 @@ class LiterateMarkdown(mistune.Markdown):
         self.ip.run_cell(code)
         return """"""
     def __init__( self, *args, **kwargs ):
-        self.env = jinja2.Environment()
+        self.env = Environment()
         self.env.filters['execute_python'] = self._execute_python
         self.env.filters['execute_javascript'] = lambda s: s
         self.ip = IPython.get_ipython()
