@@ -125,6 +125,6 @@ class environment(Magics):
             print(err)
             return
         if args.name:
-            self.ip.user_ns[args.name] = display
+            self.env.ip.user_ns[args.name] = display
         if not args.nodisplay:
             return display
