@@ -110,10 +110,5 @@ class Literacy(IPython.core.magic.Magics):
         self.env.globals['_current_name'] = args.name
         self.templates[args.name] = self.env.globals[args.name] = display
         display.name = args.name
-        try:
-            pass
-        except Exception as err:
-            print(1,err)
-            return
         if not args.nodisplay:
             return display
