@@ -1,4 +1,27 @@
 import jinja2,IPython, mistune, haikunator, yaml
+
+class TemplateMath(jinja2.Template):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+    def __add__(self, payload):
+        return self.render(**payload)
+    def __mul__(self, payload):
+        return '\n'.join([self + load for load in payload])
+    
+class LiterateEnvironment( jinja2.Environment ):
+    ip = get_ipython()
+    _filter_prefix = 'execute_'
+    def _execute_python( self, code ):
+        self.ip.run_cell(code)
+        return """"""
+
+    def __init__(self, *args, **kwargs):
+        self.loader = jinja2.DictLoader({})
+        super().__init__(*args, **kwargs)
+        self.filters[self._filter_prefix+'python'] = self._execute_python
+        self.filters[self._filter_prefix+'javascript'] = lambda s: s
+        self.template_class = TemplateMath
+        
 class LiterateDisplay( IPython.display.HTML):
     from pyquery import PyQuery 
     renderer = mistune.Markdown( renderer=mistune.Renderer(escape=False))
@@ -48,28 +71,6 @@ class LiterateDisplay( IPython.display.HTML):
         if block:
             html += '\n' + block
         self.data = html
-
-class TemplateMath(jinja2.Template):
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-    def __add__(self, payload):
-        return self.render(**payload)
-    def __mul__(self, payload):
-        return '\n'.join([self + load for load in payload])
-    
-class LiterateEnvironment( jinja2.Environment ):
-    ip = get_ipython()
-    _filter_prefix = 'execute_'
-    def _execute_python( self, code ):
-        self.ip.run_cell(code)
-        return """"""
-
-    def __init__(self, *args, **kwargs):
-        self.loader = jinja2.DictLoader({})
-        super().__init__(*args, **kwargs)
-        self.filters[self._filter_prefix+'python'] = self._execute_python
-        self.filters[self._filter_prefix+'javascript'] = lambda s: s
-        self.template_class = TemplateMath
 
 @IPython.core.magic.magics_class
 class Literacy(IPython.core.magic.Magics):
