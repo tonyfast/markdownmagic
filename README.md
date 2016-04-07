@@ -1,87 +1,20 @@
 
-# markdownmagic
-> an [IPython](http://ipython.org/) [magic](https://ipython.org/ipython-doc/dev/interactive/tutorial.html) for authoring Interactive Data-Driven notebooks with basic [Markdown]().
+<h1><code>Literacy</code></h1><p><code>Literacy</code> assists in creating static and interactive data-driven documents with Jupyter notebooks.</p>
+<hr><pre><code class="lang-%%bash">pip install git+https://github.com/tonyfast/literacy --upgrade
+</code></pre><hr><h2>Initialize <code>literate</code> magic</h2><p>Initialize the <code>literate</code> magic in a code cell in the Jupyter notebook.</p>
+<hr><pre><code class="lang-python">library = Literate()
+</code></pre><hr><p>The Literate <code>library</code> contains a <a href=""><code>jinja2</code></a> templating environment
+that is used for all of the <code>%%literate</code> cells.  The templating environment allows <code>jinja2</code>
+to access variables in your current notebook.</p>
 
-## Install
-From the command line (or with `!` in a notebook cell):
-```bash
-pip install git+https://github.com/tonyfast/markdownmagic
-```
+<h1>Using <code>literate</code> magic</h1><p>Literate magics start with <code>%%literate</code>.  The body of the cell is markdown.  Markdown code fences 
+are executed as code if the <code>library</code> corresponding to the language.</p>
+<hr><pre><code class="lang-python">default_filters = [k.lstrip('execute_') for k in library.env.filters.keys() if k.startswith('execute_')]
+num_filters = len(default_filters)
+</code></pre><hr><h3>Default filters</h3><p>The 2 default filters are:</p><ul>
 
-## Enable
-### Ad-hoc
-In the notebook, you can use the `%load_ext` or `%reload_ext` line magic.
+<li>javascript</li>
 
+<li>python</li>
 
-```python
-%reload_ext autoreload
-%autoreload 2
-```
-
-
-```python
-from markdownmagic import  environment
-mdmagic = environment()
-```
-
-### Configuration
-In your profile's `ipython_kernel_config.py`, you can add the following line to automatically load `markdownmagic` into all your running kernels:
-
-```python
-c.InteractiveShellApp.extensions = ['markdownmagic']
-```
-
-## Use
-The `%%jade` cell magic will either act as simple parser:
-
-
-```python
-%%markdown
-# This is markdown
-
-Magic options for markdown:
-    
-# How is this different
-```
-
-
-
-
-# This is markdown
-
-Magic options for markdown:
-    
-# How is this different
-
-
-
-which can be accessed by the special last result variable `_`:
-
-
-```python
-_
-```
-
-
-
-
-# This is markdown
-
-
-
-Or will update a named variable with the parsed document:
-
-## Contribute
-[Issues](https://github.com/tonyfast/markdownmagic/issues) and [pull requests](https://github.com/tonyfast/markdownmagic/pulls) welcome!
-
-## License
-
-`markdownmagic` is released as free software under the [BSD 3-Clause license](./LICENSE).
-
-## Thank
-
-
-
-```python
-
-```
+</ul>
