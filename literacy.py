@@ -61,7 +61,7 @@ class LiterateDisplay( IPython.display.HTML):
         html, block = ["""""",""""""]
         children=self.query.children()
         for i, child in enumerate(children.items()):
-            is_code = bool(child('code'))
+            is_code = bool(child[0].tag in ['pre'])
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
@@ -75,7 +75,7 @@ class LiterateDisplay( IPython.display.HTML):
 
 
 @IPython.core.magic.magics_class
-class Literacy(IPython.core.magic.Magics):
+class Literate(IPython.core.magic.Magics):
     def flush( self ):
         for k in self.templates.keys():
             del self.env.globals[k]

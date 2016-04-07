@@ -23,7 +23,7 @@ setup(
     keywords="IPython markdown commonmark jinja2 template Jupyter",
     url="http://github.com/tonyfast/markdownmagic",
     py_modules=["literacy"],
-    long_description=read("README.rst"),
+    long_description=read("README.md"),
     classifiers=[
         "Topic :: Utilities",
         "Framework :: IPython",
