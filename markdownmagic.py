@@ -1,3 +1,4 @@
+from __future__ import print_function
 from jinja2 import (Environment, DictLoader, Template,)
 import IPython, mistune
 
@@ -89,7 +90,7 @@ class LiterateParser(ParserUtils ):
 
 import jinja2
 
-from __future__ import print_function
+
 
 from IPython import get_ipython
 
