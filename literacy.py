@@ -64,7 +64,7 @@ class LiterateDisplay( IPython.display.HTML):
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
-                html += '\n' + self.append_template(template)
+                html += '\n' + self.append_template(block)
                 block = """"""
             if is_code:
                 block += """<hr>%s<hr>"""%self.execute(child)
