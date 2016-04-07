@@ -1,13 +1,5 @@
 import jinja2,IPython, mistune, haikunator, yaml
 
-class TemplateMath(jinja2.Template):
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-    def __add__(self, payload):
-        return self.render(**payload)
-    def __mul__(self, payload):
-        return '\n'.join([self + load for load in payload])
-    
 class LiterateEnvironment( jinja2.Environment ):
     ip = get_ipython()
     _filter_prefix = 'execute_'
@@ -20,7 +12,6 @@ class LiterateEnvironment( jinja2.Environment ):
         super().__init__(*args, **kwargs)
         self.filters[self._filter_prefix+'python'] = self._execute_python
         self.filters[self._filter_prefix+'javascript'] = lambda s: s
-        self.template_class = TemplateMath
         
 class LiterateDisplay( IPython.display.HTML):
     from pyquery import PyQuery 
