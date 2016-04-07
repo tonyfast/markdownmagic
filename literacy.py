@@ -1,5 +1,6 @@
 import jinja2, IPython, mistune, haikunator, yaml
-    
+from pyquery import PyQuery
+
 class LiterateEnvironment( jinja2.Environment ):
     ip = get_ipython()
     _filter_prefix = 'execute_'
@@ -15,7 +16,7 @@ class LiterateEnvironment( jinja2.Environment ):
 
 
 class LiterateDisplay( IPython.display.HTML):
-    from pyquery import PyQuery 
+
     renderer = mistune.Markdown( renderer=mistune.Renderer(escape=False))
     default_lang = 'python'
     templates = []
@@ -25,13 +26,13 @@ class LiterateDisplay( IPython.display.HTML):
         self.name = name
         self.env.globals[self.name] = self
         self.raw = self.data
-        self.query = self.PyQuery(self.renderer(self.raw))
+        self.query = PyQuery(self.renderer(self.raw))
         self.parse()
 
     @property
     def current_object(self):
         return self.env.globals[self.env.globals['_current_name']]
-    
+
     def append_template( self, txt):
         template = self.env.from_string(txt)
         if '_current_name' in self.env.globals:
@@ -53,9 +54,9 @@ class LiterateDisplay( IPython.display.HTML):
                 rendered += """<script>%s</script>"""%src
             if data:
                 for key, value in data.items():
-                    setattr(self.current_object, key, value ) 
+                    setattr(self.current_object, key, value )
         return rendered
-    
+
     def parse( self ):
         html, block = ["""""",""""""]
         children=self.query.children()
@@ -100,7 +101,7 @@ class Literacy(IPython.core.magic.Magics):
         self.env.globals['_current_name'] = args.name
         display = LiterateDisplay( cell, args.name, self.env )
         self.templates[args.name] = display
-        
+
         if define_global:
             self.env.ip.user_ns[args.name] = display
         if not args.nodisplay:

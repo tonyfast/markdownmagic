@@ -1,4 +1,0 @@
-include LICENSE
-include *.md
-include *.ipynb
-recursive-include tests/ *.ipynb
