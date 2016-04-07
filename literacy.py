@@ -36,7 +36,7 @@ class LiterateDisplay( IPython.display.HTML):
         template = self.env.from_string(txt)
         if '_current_name' in self.env.globals:
             self.current_object.templates.append(template)
-        return template
+        return self.render(template)
 
     def render(self,template ):
         return self.current_object.templates[-1].render(**self.env.ip.user_ns)
@@ -64,13 +64,12 @@ class LiterateDisplay( IPython.display.HTML):
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
-                template = self.append_template(block)
-                html += '\n' + self.render(template)
+                html += '\n' + self.append_template(template)
                 block = """"""
             if is_code:
                 block += """<hr>%s<hr>"""%self.execute(child)
         if block:
-            html += '\n' + block
+            html += '\n' + self.append_template(block)
         self.data = html
 
 
