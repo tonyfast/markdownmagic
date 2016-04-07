@@ -14,7 +14,7 @@ def read(fname):
 
 
 setup(
-    name="markdownmagic",
+    name="literacy",
     version="0.1.0",
     author="Tony Fast",
     author_email="tony.fast@gmail.com",
@@ -22,7 +22,7 @@ setup(
     license="BSD",
     keywords="IPython markdown commonmark jinja2 template Jupyter",
     url="http://github.com/tonyfast/markdownmagic",
-    py_modules=["markdownmagic"],
+    py_modules=["literacy"],
     long_description=read("README.rst"),
     classifiers=[
         "Topic :: Utilities",
