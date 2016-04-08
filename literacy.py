@@ -6,7 +6,7 @@ class LiterateEnvironment( jinja2.Environment ):
     _filter_prefix = 'execute_'
     def _execute_python( self, code ):
         self.ip.run_cell(code)
-        return """""", {}
+        return """"""
 
     def __init__(self, *args, **kwargs):
         self.loader = jinja2.DictLoader({})
@@ -52,12 +52,9 @@ class LiterateDisplay( IPython.display.HTML):
         filter_name = self.env._filter_prefix+lang
         rendered = self.render(self.append_template(child.outerHtml()))
         if filter_name in self.env.filters:
-            src, data = self.env.filters[filter_name](child.text())
+            src = self.env.filters[filter_name](child.text())
             if src:
                 rendered += """<script>%s</script>"""%src
-            if data:
-                for key, value in data.items():
-                    setattr(self.current_object, key, value )
         return rendered
 
     def parse( self ):
