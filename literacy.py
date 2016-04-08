@@ -40,10 +40,10 @@ class LiterateDisplay( IPython.display.HTML):
 
     def render(self,template ):
         builtin = self.env.ip.user_ns['__builtin__']
-        return self.current_object.templates[-1].render(
+        return self.current_object.templates[-1].render({
             **{k:getattr(builtin,k) for k in dir(builtin) if not k.startswith('_')},
             **self.env.ip.user_ns,
-        )
+        })
 
     def execute(self,child):
         lang = self.env.default_lang if self.env.default_lang else """"""
