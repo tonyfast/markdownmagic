@@ -18,7 +18,6 @@ class LiterateEnvironment( jinja2.Environment ):
 class LiterateDisplay( IPython.display.HTML):
 
     renderer = mistune.Markdown( renderer=mistune.Renderer(escape=False))
-    default_lang = ''
     templates = []
     def __init__(self, data, name=haikunator.haikunate(), env=LiterateEnvironment(), *args, **kwargs):
         self.env = env
@@ -43,7 +42,7 @@ class LiterateDisplay( IPython.display.HTML):
         return self.current_object.templates[-1].render(**self.env.ip.user_ns)
 
     def execute(self,child):
-        lang = self.default_lang if self.default_lang else """"""
+        lang = self.env.default_lang if self.env.default_lang else """"""
         if child('code').attr('class'):
             lang = [c.lstrip('lang-') for c in child('code').attr('class').split() if c.startswith('lang-')][0]
         filter_name = self.env._filter_prefix+lang
@@ -83,6 +82,7 @@ class Literate(IPython.core.magic.Magics):
 
     def __init__(self):
         env = self.env = LiterateEnvironment()
+        self.env.default_lang = ''
         self.templates = {}
         super().__init__()
         self.env.ip.register_magics(self)
