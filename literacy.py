@@ -18,7 +18,7 @@ class LiterateEnvironment( jinja2.Environment ):
 class LiterateDisplay( IPython.display.HTML):
 
     renderer = mistune.Markdown( renderer=mistune.Renderer(escape=False))
-    default_lang = 'python'
+    default_lang = ''
     templates = []
     def __init__(self, data, name=haikunator.haikunate(), env=LiterateEnvironment(), *args, **kwargs):
         self.env = env
