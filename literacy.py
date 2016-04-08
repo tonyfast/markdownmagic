@@ -39,9 +39,10 @@ class LiterateDisplay( IPython.display.HTML):
         return self.render(template)
 
     def render(self,template ):
+        builtin = self.env.ip.user_ns['__builtin__']
         return self.current_object.templates[-1].render(
-            **{k:getattr(__builtin__,k) for k in dir(__builtin__)},
-            **self.env.ip.user_ns,
+            **{k:getattr(builtin,k) for k in dir(builtin)},
+            **,
         )
 
     def execute(self,child):
