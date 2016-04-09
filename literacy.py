@@ -52,7 +52,7 @@ class LiterateDisplay( IPython.display.HTML):
         filter_name = self.env._filter_prefix+lang
         rendered = self.render(self.append_template(child.outerHtml()))
         if filter_name in self.env.filters:
-            src = self.env.filters[filter_name](rendered)
+            src = self.env.filters[filter_name](PyQuery(rendered).text())
             if src:
                 rendered += """<script>%s</script>"""%src
         return rendered
