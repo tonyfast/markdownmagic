@@ -3,5 +3,6 @@ pyquery
 lxml
 pyyaml
 mistune
-
+haikunator
+pyyaml
 IPython
