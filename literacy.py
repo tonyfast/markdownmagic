@@ -1,94 +1,86 @@
-import jinja2, IPython, mistune, haikunator, yaml
+import jinja2, IPython, mistune, haikunator
 from pyquery import PyQuery
 
 class LiterateEnvironment( jinja2.Environment ):
+    """A Jinja Environment that can """
     ip = get_ipython()
-    _filter_prefix = 'execute_'
     def _execute_python( self, code ):
         self.ip.run_cell(code)
         return """"""
-
-    def __init__(self, *args, **kwargs):
-        self.loader = jinja2.DictLoader({})
-        super().__init__(*args, **kwargs)
-        self.filters[self._filter_prefix+'python'] = self._execute_python
-        self.filters[self._filter_prefix+'javascript'] = lambda s: (s, None)
-
-
-class LiterateDisplay( IPython.display.HTML):
-
-    renderer = mistune.Markdown( renderer=mistune.Renderer(escape=False))
-    templates = []
-    def __init__(self, data, name=haikunator.haikunate(), env=LiterateEnvironment(), *args, **kwargs):
-        self.env = env
-        super().__init__(data, *args, **kwargs)
-        self.name = name
-        self.env.globals[self.name] = self
-        self.raw = self.data
-        self.query = PyQuery(self.renderer(self.raw))
-        self.parse()
-
+    def __init__(self,default_lang='',lang_prefix='lang-', filter_prefix='execute_'):
+        super().__init__(loader = jinja2.DictLoader({}))
+        self.globals = {**self.globals,"default_lang": default_lang, "lang_prefix": lang_prefix, "filter_prefix": filter_prefix}
+        self.filters[self.globals['filter_prefix']+'python'] = self._execute_python
+        self.filters[self.globals['filter_prefix']+'javascript'] = lambda s: (s, None)
+        
+class Compiler:
+    def execute(self, child, filter_name=""""""):
+        if child('code').attr('class'):
+            lang = [c.lstrip(self.env.globals['lang_prefix']) for c in child('code').attr('class').split() if c.startswith(self.env.globals['lang_prefix'])][0]
+            filter_name = self.env.globals['filter_prefix']+lang
+        rendered = self.render(self._append_template(child.outerHtml()))
+        if filter_name in self.env.filters:
+            src = self.env.filters[filter_name](PyQuery(rendered).text())
+            rendered += """<script>%s</script>"""%src if src else """"""
+        return rendered
+    
+class Templates(Compiler):
+    templates=[]
     @property
-    def current_object(self):
+    def _current_template(self):
         return self.env.globals[self.env.globals['_current_name']]
-
-    def append_template( self, txt):
+    
+    def _append_template( self, txt):
         template = self.env.from_string(txt)
         if '_current_name' in self.env.globals:
-            self.current_object.templates.append(template)
+            self._current_template.templates.append(template)
         return self.render(template)
-
-    def render(self,template ):
-        builtin = self.env.ip.user_ns['__builtin__']
-        return self.current_object.templates[-1].render({
-            **{k:getattr(builtin,k) for k in dir(builtin) if not k.startswith('_')},
+    def render(self,template):
+        return self._current_template.templates[-1].render({
+            **{k:getattr(__builtin__,k) for k in dir(__builtin__) if not k.startswith('_')},
             **self.env.ip.user_ns,
         })
 
-    def execute(self,child):
-        lang = self.env.default_lang if self.env.default_lang else """"""
-        if child('code').attr('class'):
-            lang = [c.lstrip('lang-') for c in child('code').attr('class').split() if c.startswith('lang-')][0]
-        filter_name = self.env._filter_prefix+lang
-        rendered = self.render(self.append_template(child.outerHtml()))
-        if filter_name in self.env.filters:
-            src = self.env.filters[filter_name](PyQuery(rendered).text())
-            if src:
-                rendered += """<script>%s</script>"""%src
-        return rendered
-
-    def parse( self ):
-        html, block = ["""""",""""""]
-        children=self.query.children()
-        for i, child in enumerate(children.items()):
+class Selection(IPython.display.HTML, Templates):
+    def __init__(self,data):
+        super().__init__( data ) 
+        self.raw, self.query = [self.data, PyQuery(self.renderer(self.data))]
+        self.data = self.parse(self.query)
+    def parse( self, query ):
+        html, block, self.templates = ["""""","""""",[]]
+        for i, child in enumerate(query.children().items()):
             is_code = bool(child[0].tag in ['pre'])
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
-                html += '\n' + self.append_template(block)
+                html += '\n' + self._append_template(block)
                 block = """"""
             if is_code:
                 block += """<hr>%s<hr>"""%self.execute(child)
         if block:
-            html += '\n' + self.append_template(block)
-        self.data = html
-
+            html += '\n' + self._append_template(block)
+        return html
+    
+class Cell( Selection ):   
+    renderer = mistune.Markdown( renderer=mistune.Renderer(escape=False))
+    def __init__(self, data, name=haikunator.haikunate(), env=LiterateEnvironment()):
+        self.env = env
+        self.name = name
+        self.env.globals[self.name] = self
+        super().__init__(data)        
 
 @IPython.core.magic.magics_class
 class Literate(IPython.core.magic.Magics):
     def flush( self ):
-        for k in self.templates.keys():
-            del self.env.globals[k]
-        self.templates = {}
+        [delattr(self.env.globals[k]) for k in self.cells.keys()]
+        self.cells = {}
 
-    def __init__(self):
-        env = self.env = LiterateEnvironment()
-        self.env.default_lang = ''
-        self.templates = {}
+    def __init__(self, **kwargs):
+        self.env, self.cells = [LiterateEnvironment(), {}]
         super().__init__()
         self.env.ip.register_magics(self)
 
-    @IPython.core.magic.cell_magic
+    @IPython.core.magic.cell_magic 
     @IPython.core.magic_arguments.magic_arguments()
     @IPython.core.magic_arguments.argument( "name", default=None, nargs="?", help="""Name of local variable to set to parsed value""")
     @IPython.core.magic_arguments.argument("-n", "--nodisplay", default=False, action="store_true", help="""Show the output""")
@@ -100,9 +92,8 @@ class Literate(IPython.core.magic.Magics):
             define_global = False
             args.name = haikunator.haikunate(delimiter='_',tokenlength=0)
         self.env.globals['_current_name'] = args.name
-        display = LiterateDisplay( cell, args.name, self.env )
-        self.templates[args.name] = display
-
+        display = Cell( cell, args.name, self.env )
+        self.cells[args.name] = display
         if define_global:
             self.env.ip.user_ns[args.name] = display
         if not args.nodisplay:
