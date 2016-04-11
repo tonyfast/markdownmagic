@@ -14,12 +14,12 @@ class LiterateEnvironment( jinja2.Environment ):
         self.filters[self.globals['filter_prefix']+'javascript'] = lambda s: (s, None)
         
 class Compiler:
-    def execute(self, child, filter_name=""""""):
+    def execute(self, child, data={}, filter_name=""""""):
         lang = self.env.globals['default_lang']
         if child('code').attr('class'):
             lang = [c.lstrip(self.env.globals['lang_prefix']) for c in child('code').attr('class').split() if c.startswith(self.env.globals['lang_prefix'])][0]
         filter_name = self.env.globals['filter_prefix']+lang
-        rendered = self.render(self._append_template(child.outerHtml()))
+        rendered = self.render(self._append_template(child.outerHtml()),data)
         if filter_name in self.env.filters:
             src = self.env.filters[filter_name](PyQuery(rendered).text())
             rendered += """<script>%s</script>"""%src if src else """"""
@@ -59,7 +59,7 @@ class Selection(IPython.display.HTML, Templates):
                 html += '\n' + self._append_template(block, data)
                 block = """"""
             if is_code:
-                block += """<hr>%s<hr>"""%self.execute(child)
+                block += """<hr>%s<hr>"""%self.execute(child,data)
         if block:
             html += '\n' + self._append_template(block, data)
         return html
