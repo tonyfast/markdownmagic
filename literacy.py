@@ -31,15 +31,16 @@ class Templates(Compiler):
     def _current_template(self):
         return self.env.globals[self.env.globals['_current_name']]
     
-    def _append_template( self, txt):
+    def _append_template(self, txt, data={}):
         template = self.env.from_string(txt)
         if '_current_name' in self.env.globals:
             self._current_template.templates.append(template)
-        return self.render(template)
-    def render(self,template):
+        return self.render(template, data)
+    
+    def render(self,template, data={}):
         return self._current_template.templates[-1].render({
             **{k:getattr(self.env.ip.user_ns['__builtin__'],k) for k in dir(self.env.ip.user_ns['__builtin__']) if not k.startswith('_')},
-            **self.env.ip.user_ns,
+            **self.env.ip.user_ns, **data,
         })
 
 class Selection(IPython.display.HTML, Templates):
@@ -47,19 +48,20 @@ class Selection(IPython.display.HTML, Templates):
         super().__init__( data ) 
         self.raw, self.query = [self.data, PyQuery(self.renderer(self.data))]
         self.data = self.parse(self.query)
-    def parse( self, query ):
+    def parse( self, query=None, data={} ):
+        query = self.query if not query else query
         html, block, self.templates = ["""""","""""",[]]
         for i, child in enumerate(query.children().items()):
             is_code = bool(child[0].tag in ['pre'])
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
-                html += '\n' + self._append_template(block)
+                html += '\n' + self._append_template(block, data)
                 block = """"""
             if is_code:
                 block += """<hr>%s<hr>"""%self.execute(child)
         if block:
-            html += '\n' + self._append_template(block)
+            html += '\n' + self._append_template(block, data)
         return html
     
 class Cell( Selection ):   
