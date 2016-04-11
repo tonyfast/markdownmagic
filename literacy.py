@@ -37,7 +37,7 @@ class Templates(Compiler):
         return self.render(template)
     def render(self,template):
         return self._current_template.templates[-1].render({
-            **{k:getattr(__builtin__,k) for k in dir(__builtin__) if not k.startswith('_')},
+            **{k:getattr(self.ip.user_ns['__builtin__'],k) for k in dir(self.ip.user_ns['__builtin__']) if not k.startswith('_')},
             **self.env.ip.user_ns,
         })
 
