@@ -76,7 +76,7 @@ class Literate(IPython.core.magic.Magics):
         self.cells = {}
 
     def __init__(self, **kwargs):
-        self.env, self.cells = [LiterateEnvironment(), {}]
+        self.env, self.cells = [LiterateEnvironment(**kwargs), {}]
         super().__init__()
         self.env.ip.register_magics(self)
 
