@@ -1,5 +1,6 @@
 import jinja2, IPython, mistune, haikunator
 from pyquery import PyQuery
+get_ipython = IPython.get_ipython
 
 class LiterateEnvironment( jinja2.Environment ):
     """A Jinja Environment that can """
