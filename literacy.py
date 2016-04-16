@@ -75,7 +75,7 @@ class Cell( Selection ):
 @IPython.core.magic.magics_class
 class Literate(IPython.core.magic.Magics):
     def flush( self ):
-        [delattr(self.env.globals[k]) for k in self.cells.keys()]
+        [self.env.globals.pop(k,None) for k in self.cells.keys()]
         self.cells = {}
 
     def __init__(self, **kwargs):
