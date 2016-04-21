@@ -8,11 +8,11 @@ class LiterateEnvironment( jinja2.Environment ):
     def _execute_python( self, code ):
         self.ip.run_cell(code)
         return """"""
-    def __init__(self,default_lang='',lang_prefix='lang-', filter_prefix='execute_'):
+    def __init__(self,default_lang='',lang_prefix='lang-', filter_prefix='execute_',render_data=True):
         super().__init__(loader = jinja2.DictLoader({}))
         self.globals = {
             **self.globals,
-            "default_lang": default_lang, "lang_prefix": lang_prefix, "filter_prefix": filter_prefix,'render_data':True,'name_cells':True}
+            "default_lang": default_lang, "lang_prefix": lang_prefix, "filter_prefix": filter_prefix,'render_data':render_data,'name_cells':True}
         self.filters[self.globals['filter_prefix']+'python'] = self._execute_python
         self.filters[self.globals['filter_prefix']+'javascript'] = lambda s: (s, None)
 
