@@ -42,3 +42,6 @@ class Literate(Magics):
                 else:
                     return cell.display
             return cell
+
+if __name__ == '__main__':
+    Literate()
