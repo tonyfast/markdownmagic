@@ -1,6 +1,6 @@
 import jinja2, IPython, mistune
 from pyquery import PyQuery
-import yaml
+import yaml, ipywidgets
 get_ipython = IPython.get_ipython
 
 class LiterateEnvironment( jinja2.Environment ):
@@ -56,19 +56,19 @@ class Tangle( TangleKernel):
             lang = [c.lstrip(self.env.globals['lang_prefix']) for c in child('code').attr('class').split() if c.startswith(self.env.globals['lang_prefix'])][0]
         return lang
     def tangle(self):
-        html, block, self.templates = ["""""","""""",[]]
+        self.data, block, self.templates = ["""""","""""",[]]
         for child in self.query.children().items():
             is_code = bool(child[0].tag in ['pre'])
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
-                html += '\n' + super().tangle(block)
+                self.data += '\n' + super().tangle(block)
                 block = """"""
             if is_code:
-                html+=super().tangle(child.text(),child=child,lang=self._get_lang(child))
+                self.data+=super().tangle(child.text(),child=child,lang=self._get_lang(child))
         else:
-            html += '\n' + super().tangle(block) if block else """"""
-        return html
+            self.data += '\n' + super().tangle(block) if block else """"""
+        return self.data
     def render(self,txt, data={},render_data=False):
         template = self.env.from_string(txt)
         self.templates.append(template)
@@ -84,34 +84,41 @@ class Cell(Tangle):
         self.env, self.name = [env, name]
         self.env.globals[self.name] = self
         super().__init__(raw)
-
 class StaticCell(Cell, IPython.display.HTML):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.data=self.tangle()
+        self.tangle()
+class InteractiveCell(StaticCell):
+    def __init__(self, *args, auto=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.auto=auto
+        if not hasattr(self,'widgets'):
+            self.widgets={}
+        if not 'html' in self.widgets:
+            self.widgets['html']=ipywidgets.HTML(self.data)
+        if not 'trigger' in self.widgets:
+            self.widgets['trigger']=ipywidgets.Button(description="""Update cell""")
+            self.widgets['trigger'].on_click(callback=self.update_html)
+        self.widgetize()
+        self.update_html()
+        
+    def update_html(self,*args,**kwargs):
+        self.widgets['html'].value = self.tangle()
+    def update_frontmatter(self,change,*args,**kwargs):
+        self.frontmatter[change['owner'].description]=change['new']
+        if self.auto:
+            self.update_html()
+    def widgetize(self):
+        for k, v in self.frontmatter.items():
+            if isinstance( v,(str,list,dict,int,float)):
+                self.widgets[k]=ipywidgets.interaction._widget_from_abbrev(v)
+                self.frontmatter[k]=self.widgets[k].value
+                self.widgets[k].description=k
+                self.widgets[k].observe(names='value', handler=self.update_frontmatter)        
+    @property
     def display(self):
-        return self
-
-def widgetize( cell, auto=False ):
-    if not hasattr(cell,'widgets'):
-        cell.widgets={}
-    if not 'html' in cell.widgets:
-        cell.widgets['html']=ipywidgets.HTML(cell.data)
-    def update_html(*args,**kwargs):
-        cell.widgets['html'].value = cell.tangle()
-    if not 'trigger' in cell.widgets:
-        cell.widgets['trigger']=ipywidgets.Button(description="""Update cell""")
-        cell.widgets['trigger'].on_click(callback=update_html)
-    def update_frontmatter(change,*args,**kwargs):
-        cell.frontmatter[change['owner'].description]=change['new']
-        if auto:
-            update_html()
-    for k, v in cell.frontmatter.items():
-        cell.widgets[k]=ipywidgets.interaction._widget_from_abbrev(v)
-        cell.widgets[k].description=k
-        cell.widgets[k].observe(names='value', handler=update_frontmatter)        
-    trigger = [] if auto else [cell.widgets['trigger']]
-    return ipywidgets.Box(children=[*[v for k,v in cell.widgets.items() if k in cell.frontmatter],*trigger,cell.widgets['html']])
+        trigger = [] if self.auto else [self.widgets['trigger']]
+        return ipywidgets.Box(children=[self.widgets['html'],*[v for k,v in self.widgets.items() if k in self.frontmatter],*trigger])
 
 @IPython.core.magic.magics_class
 class Literate(IPython.core.magic.Magics):
@@ -125,14 +132,22 @@ class Literate(IPython.core.magic.Magics):
     @IPython.core.magic_arguments.argument( "name", default=None, nargs="?", help="""Name of local variable to set to parsed value""")
     @IPython.core.magic_arguments.argument("-n", "--nodisplay", default=False, action="store_true", help="""Show the output""")
     @IPython.core.magic_arguments.argument("-i", "--interact", default=False, action="store_true", help="""Show the output""")
+    @IPython.core.magic_arguments.argument("-s", "--static", default=False, action="store_true", help="""Show the output""")
     @IPython.core.magic_arguments.argument("-a", "--auto", default=False, action="store_true", help="""Show the output""")
     def literate(self, line, cell):
         line = line.strip()
         args = IPython.core.magic_arguments.parse_argstring(self.literate, line)
-        cell = StaticCell( cell, args.name, self.env )
+        if args.interact:
+            cell = InteractiveCell( cell, args.name, self.env, auto=args.auto )
+        else:
+            cell = StaticCell(cell, args.name, self.env)
         if args.name:
             self.env.ip.user_ns[args.name] = cell
         if not args.nodisplay:
             if args.interact:
-                return widgetize(cell,auto=args.auto)
+                if args.static:
+                    pass
+                else:
+                    return cell.display
+                
             return cell
