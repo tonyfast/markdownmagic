@@ -1,7 +1,7 @@
 from .tangle import (
     Tangle,
 )
-from .env import (
+from .environment import (
     LiterateEnvironment,
 )
 import IPython, ipywidgets
@@ -9,18 +9,20 @@ import IPython, ipywidgets
 class Cell(Tangle):
     def __init__(self, raw, name="""_current_cell""", env=LiterateEnvironment()):
         self.env, self.name = [env, name]
+        super(Cell,self).__init__(raw)
         self.env.globals[self.name] = self
-        super().__init__(raw)
 
 class StaticCell(Cell, IPython.display.HTML):
     def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
+        super(StaticCell,self).__init__(*args,**kwargs)
         self.tangle()
 
 class InteractiveCell(StaticCell):
-    def __init__(self, *args, auto=False, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.auto=auto
+    def __init__(self, *args, **kwargs):
+        if 'auto' in kwargs:
+            self.auto=kwargs['auto']
+            del kwargs['auto']
+        super(InteractiveCell,self).__init__(*args, **kwargs)
         if not hasattr(self,'widgets'):
             self.widgets={}
         if not 'html' in self.widgets:
@@ -29,6 +31,7 @@ class InteractiveCell(StaticCell):
             self.widgets['trigger']=ipywidgets.Button(description="""Update cell""")
             self.widgets['trigger'].on_click(callback=self.update_html)
         self.widgetize()
+        self.tangle()
         self.update_html()
 
     def update_html(self,*args,**kwargs):
@@ -46,10 +49,8 @@ class InteractiveCell(StaticCell):
                 self.widgets[k].observe(names='value', handler=self.update_frontmatter)
     @property
     def display(self):
-        trigger = [] if self.auto else [self.widgets['trigger']]
-        return ipywidgets.Box(
-            children=[
-                self.widgets['html'],
-                *[v for k,v in self.widgets.items() if k in self.frontmatter],
-                *trigger
-            ])
+        widgets=[self.widgets['html']]
+        widgets.extend([v for k,v in self.widgets.items() if k in self.frontmatter])
+        if not self.auto:
+            widgets.append(self.widgets['trigger'])
+        return ipywidgets.Box(children=widgets)

@@ -1,11 +1,9 @@
-class Weave():
+class Weave(object):
     def weave(self,**kwargs):
-        return self.env.get_template('weave_template').render(
-            {**{
-                'html':'',
-                'js':'',
-                'css':''
-            },
-            **kwargs
-            }
-        )
+        tokens={
+            'html':'',
+            'js':'',
+            'css':''
+        }
+        tokens.update(kwargs)
+        return self.env.get_template('weave_template').render(tokens)
