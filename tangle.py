@@ -16,7 +16,6 @@ class TangleKernel(TangleClient):
         tokens={'html':""""""}
         if element and element[0].tag in ['pre']:
             lang=self._get_lang(element)
-            print(lang)
             if lang and lang in self.env.globals['callback']:
                 tokens.update(self.env.globals['callback'][lang](self.render(element.text())))
             tokens['html'] = self.env.get_template('weave_code').render(code=self.render(element.text()))+tokens['html']
