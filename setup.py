@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(fname):
@@ -22,7 +22,7 @@ setup(
     license="BSD",
     keywords="IPython markdown commonmark jinja2 template Jupyter",
     url="http://github.com/tonyfast/markdownmagic",
-    py_modules=["literacy"],
+    packages=find_packages(),
     long_description=read("README.md"),
     classifiers=[
         "Topic :: Utilities",
@@ -37,6 +37,6 @@ setup(
         "Topic :: Software Development :: Testing",
     ],
     install_requires=[
-        "jinja2", "mistune",
+        "jinja2", "mistune","IPython","pyquery","lxml","ipywidgets","pyyaml"
     ]
 )
