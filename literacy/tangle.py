@@ -73,3 +73,6 @@ class Tangle(TangleKernel):
         if child('code').attr('class'):
             lang = [c.lstrip(self.env.globals['lang_prefix']) for c in child('code').attr('class').split() if c.startswith(self.env.globals['lang_prefix'])][0]
         return lang
+
+def __init__():
+    pass

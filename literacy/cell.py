@@ -68,3 +68,6 @@ class InteractiveCell(Cell):
         if not self.auto:
             widgets.append(self.widgets['trigger'])
         return ipywidgets.Box(children=widgets)
+
+def __init__():
+    pass
