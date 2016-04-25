@@ -23,8 +23,8 @@ class Literate(Magics):
     @cell_magic
     @magic_arguments.magic_arguments()
     @magic_arguments.argument( "name", default=None, nargs="?", help="""Name of local variable to set to parsed value""")
+    @magic_arguments.argument("-f", "--filename", default=None, help="""File name for the cell.""")
     @magic_arguments.argument("-n", "--nodisplay", default=False, action="store_true", help="""Show the tangled code.""")
-    @magic_arguments.argument("-f", "--filename", default=None, action="store_true", help="""File name for the cell.""")
     @magic_arguments.argument("-i", "--interact", default=False, action="store_true", help="""Interactive widgets for the cell.""")
     @magic_arguments.argument("-s", "--static", default=False, action="store_true", help="""Display interactive widget as static display""")
     @magic_arguments.argument("-a", "--auto", default=False, action="store_true", help="""Automatically update widgets.""")
