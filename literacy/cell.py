@@ -7,12 +7,17 @@ from .environment import (
 import IPython, ipywidgets
 
 class Cell(Tangle, IPython.display.HTML):
-    def __init__(self, raw, name="""_current_cell""", env=LiterateEnvironment()):
+    def __init__(self, raw, filename=None, name="""_current_cell""", env=LiterateEnvironment()):
         self.env, self.name = [env, name]
+        if filename:
+            self.filename=filename
         if name:
             self.env.ip.user_ns[name] = self
         super(Cell,self).__init__(raw)
         self.env.globals[self.name] = self
+    def save(self,template=None):
+        with open(self.filename,'w') as f:
+            f.write(self.data)
 
 class StaticCell(Cell):
     def __init__(self,*args,**kwargs):
