@@ -53,8 +53,8 @@ class Tangle(TangleKernel):
             if is_code:
                 self.data+=super(Tangle,self).tangle(element=child)
         else:
-            self.data += '\n' + super(Tangle,self).tangle(html=block) if block else """"""
-            return self.data
+            self.data += '\n' + super(Tangle,self).tangle(html=block) if block else """"""            
+        return self.data
 
     def render(self,txt, data={},template=None,render_template=False):
         if not template:
