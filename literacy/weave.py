@@ -7,4 +7,3 @@ class Weave(object):
         }
         tokens.update(kwargs)
         return self.env.get_template('weave_template').render(tokens)
-        

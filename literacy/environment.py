@@ -15,10 +15,10 @@ class LiterateEnvironment( Environment ):
     def __init__(self,default_lang='python',lang_prefix='lang-', render_template=True,*args,**kwargs):
         self.renderer=Markdown(renderer=Renderer(escape=False))
         super(LiterateEnvironment,self).__init__(loader=DictLoader({}))
-        self.loader.mapping['weave_code'] = """<hr><pre><code>{{code}}</code></pre>"""
+        self.loader.mapping['weave_code'] = """<br><pre><code>{{code|e}}</code></pre><br>"""
         self.loader.mapping['weave_template'] = """
-        {% if css %}<style>{{css}}</style>{% endif %}
-        {% if html %}{{html}}<hr>{% endif %}
+        {% if css %}<style>{{css|safe}}</style>{% endif %}
+        {% if html %}{{html}}{% endif %}
         {% if js %}<script>{{js}}</script>{% endif %}
         """
         self.globals["default_lang"]=default_lang
@@ -27,6 +27,9 @@ class LiterateEnvironment( Environment ):
         self.globals['callback']={
             'python': lambda code: {
                 'python': self.ip.run_cell(code),
+            },
+            'html': lambda code: {
+                'html': code,
             },
             'js': lambda code: {
                 'js': code,

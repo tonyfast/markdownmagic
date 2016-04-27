@@ -1,6 +1,8 @@
 from .cell import (
-    InteractiveCell,
     StaticCell,
+)
+from .interactive import (
+    InteractiveCell,
 )
 from .environment import (
     LiterateEnvironment,
@@ -42,3 +44,7 @@ class Literate(Magics):
                 else:
                     return cell.display
             return cell
+
+    @property
+    def this(self):
+        return self.env.globals['this']

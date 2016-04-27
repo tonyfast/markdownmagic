@@ -7,53 +7,51 @@ from pyquery import (
 import yaml
 
 class TangleClient(Weave):
+    """
+    Tokenize the HTML representation of a template.
+    """
     def tangle(self,code):
         return {
                 'html': code,
             }
-
 class TangleKernel(TangleClient):
+    """
+    Tokenize executable code and html representation.
+    """
     def tangle(self,html="""""", element=None):
         tokens={'html':""""""}
         if element and element[0].tag in ['pre']:
             lang=self._get_lang(element)
             if lang and lang in self.env.globals['callback']:
-
                 tokens.update(self.env.globals['callback'][lang](self.render(element.text())))
             tokens['html'] = self.env.get_template('weave_code').render(code=self.render(element.text()))+tokens['html']
         else:
             tokens=super(TangleKernel,self).tangle(self.render(html))
         return self.weave(**tokens)
 
-class Tangle(TangleKernel):
-    """Run Code, tokenize Markdown, and Weave"""
-    templates=[]
-    def __init__(self, raw):
-        self.raw, self.frontmatter = [raw, {}]
-        """Split FrontMatter"""
-        if raw.startswith('---\n'):
-            tmp, self.raw = self.raw.lstrip('---').strip().split('---',1)
-            self.frontmatter=yaml.load(self.render(tmp))
-        super(Tangle,self).__init__()
 
+class Tangle(TangleKernel):
     @property
     def query(self):
+        """"""
         return PyQuery(self.env.renderer(self.raw))
 
     def tangle(self):
-        self.data, block, self.templates = ["""""","""""",[]]
-        for child in self.query.children().items():
+        data, block, self.templates = ["""""","""""",[]]
+        for child in self.query.children().items() if self.query.children() else self.query.items():
             tagName=child[0].tag
             is_code = bool(tagName in ['pre'])
             if not is_code:
                 block += child.outerHtml()
             if is_code and block:
-                self.data += '\n' + super(Tangle,self).tangle(html=block)
+                data += '\n' + super(Tangle,self).tangle(html=block)
                 block = """"""
             if is_code:
-                self.data+=super(Tangle,self).tangle(element=child)
+                data+=super(Tangle,self).tangle(element=child)
         else:
-            self.data += '\n' + super(Tangle,self).tangle(html=block) if block else """"""            
+            data += '\n' + super(Tangle,self).tangle(html=block) if block else """"""
+        # Wrap an id around the output if there is an ID provided.  Tooltips get easier.``
+        self.data=self.tangled.html(data).outerHtml()
         return self.data
 
     def render(self,txt, data={},template=None,render_template=False):
