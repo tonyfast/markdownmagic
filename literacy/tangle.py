@@ -4,15 +4,12 @@ from .blocks import (
 from .weave import (
     Weave,
 )
-from .query import (
-    PyQueryUTF,
-)
 import yaml
 
 class Tangle(Weave):
     def tangle(self):
         """Tangle non-code and code blocks."""
-        self.data, self.blocks = ["""""",[],]
+        self.data, self.blocks, self.tangled = ["""""",[],self.tangled.html("""""")]
         for child in self.query.children().items() if self.query.children() else self.query.items():
             self.blocks.append(Block(child,self.env))
         self.tangled.html(self.weave())

@@ -32,8 +32,8 @@ class Cell(Processor, HTML):
             f.write(self.data)
 
     def render(self,txt,render_template=False):
-        template=self.env.from_string(txt)
         if self.env.globals['render_template'] or render_template:
+            template=self.env.from_string(txt)
             data={k:getattr(self.env.ip.user_ns['__builtin__'],k) for k in dir(self.env.ip.user_ns['__builtin__']) if not k.startswith('_')}
             data.update(self.env.ip.user_ns)
             data.update(self.frontmatter)

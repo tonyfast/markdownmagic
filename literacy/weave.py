@@ -37,7 +37,7 @@ class Weave(Tokenize):
 
     def weave(self,html=""""""):
         """Weave separate blocks of html and code together."""
-        [refresh.html("""""") for refresh in [self.current_block, self.tangled]]
+        self.current_block.html("""""")
         for block in self.blocks:
             if block.is_code and self.current_block.html():
                 html+=super().weave(Block(self.current_block('section'),self.env))

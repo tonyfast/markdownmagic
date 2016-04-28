@@ -33,7 +33,6 @@ class Block(CodeBlock):
         if self.is_code:
             return self.query('code').html()
         return self.query.outerHtml()
-
     @property
     def tag(self):
         return self.query[0].tag
