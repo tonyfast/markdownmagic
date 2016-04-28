@@ -24,7 +24,7 @@ class Tokenize(object):
         return self.env.get_template('weave_template').render(**tokens)
 
 class Weave(Tokenize):
-    current_block=PyQueryUTF("""<section></section>""")
+    current_block=PyQueryUTF("""<section></section>""").parent().html("""""")
     def __init__(self):
         self.env.loader.mapping.update({
             'weave_code': """<br><pre><code>{{code|e}}</code></pre><br>""",
@@ -37,15 +37,16 @@ class Weave(Tokenize):
 
     def weave(self,html=""""""):
         """Weave separate blocks of html and code together."""
-        self.current_block.html("""""")
+        html,_html=["",""]
         for block in self.blocks:
-            if block.is_code and self.current_block.html():
-                html+=super().weave(Block(self.current_block('section'),self.env))
-                self.current_block.html("""""")
+            if block.is_code and html:
+                html+=super().weave(Block(PyQueryUTF(_html),self.env))
+                _html=""""""
             if block.is_code:
                 html+=super().weave(block)
             else:
-                self.current_block.append(block.query.outerHtml())
-        if self.current_block and self.current_block.html():
-            html+=super().weave(Block(self.current_block('section'),self.env))
+                _html+=block.query.outer_html()
+        else:
+            if _html:
+                html+=super().weave(Block(PyQueryUTF(_html),self.env))
         return html

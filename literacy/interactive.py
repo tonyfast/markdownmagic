@@ -12,9 +12,7 @@ class InteractiveCell(Cell):
     auto=False
     def __init__(self, *args, **kwargs):
         self.widgets={}
-        if 'auto' in kwargs:
-            self.auto=kwargs['auto']
-            del kwargs['auto']
+        self.auto=kwargs['cell_args'].auto
         super(InteractiveCell,self).__init__(*args, **kwargs)
         self.data=""""""
         if not 'html' in self.widgets:
@@ -28,6 +26,7 @@ class InteractiveCell(Cell):
     def update_html(self,*args,**kwargs):
         """tangle the code and update static and dynamic html widget"""
         self.data=self.tangle()
+        self.data=self._template.render(cell=self)
         self.widgets['html'].value = self.data
     def update_frontmatter(self,change,*args,**kwargs):
         """Update frontmatter when when the variable changes"""

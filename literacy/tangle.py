@@ -9,12 +9,10 @@ import yaml
 class Tangle(Weave):
     def tangle(self):
         """Tangle non-code and code blocks."""
-        self.data, self.blocks, self.tangled = ["""""",[],self.tangled.html("""""")]
+        self.blocks=[]
         for child in self.query.children().items() if self.query.children() else self.query.items():
             self.blocks.append(Block(child,self.env))
-        self.tangled.html(self.weave())
-        return self.tangled.outer_html().decode('utf-8')
-
+        return self.weave()
 class Processor(Tangle):
     """
     Slice front matter, tangle templates, and weave the code.

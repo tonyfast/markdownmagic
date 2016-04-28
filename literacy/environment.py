@@ -16,6 +16,10 @@ class LiterateEnvironment( Environment ):
     renderer=Markdown(renderer=Renderer(escape=False))
     def __init__(self,default_lang='python',lang_prefix='lang-', render_template=True,*args,**kwargs):
         super(LiterateEnvironment,self).__init__(loader=DictLoader({}))
+        self.loader.mapping.update({
+            'default': """{{cell.data}}""",
+            'default_div': """<div id="{{cell.name}}" class='{{cell.classes.strip('"').strip("'")}}'>{{cell.data}}</div>""",
+        })
         self.globals.update({
             "default_lang": default_lang,
             "render_template": render_template,

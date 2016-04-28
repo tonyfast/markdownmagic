@@ -16,15 +16,16 @@ class Cell(Processor, HTML):
     Tangle the code into html and code blocks.
     Weave the code in either static or interactive mode.
     """
-    def __init__(self, raw, filename=None, name="""_current_cell""", env=LiterateEnvironment()):
+    def __init__(self, raw, cell_args, env=LiterateEnvironment(), *args, **kwargs):
         self.blocks=[]
-        self.tangled=PyQueryUTF("""<div></div>""")
-        self.env, self.name, self.env.globals['this'] = [env, name, self]
-        if name:
-            self.tangled.attr('id', name)
-            self.env.globals[name], self.env.ip.user_ns[name] = [self, self]
-        if filename:
-            self.filename=filename
+        self.env, self.name, self.env.globals['this'] = [env, cell_args.name, self]
+        self.classes=cell_args.classes
+        if cell_args.template in ['default'] and (cell_args.classes or self.name):
+            cell_args.template='default_div'
+        self._template=self.env.get_template(cell_args.template)
+        self.filename=cell_args.filename
+        if cell_args.name:
+            self.env.globals[cell_args.name]=self.env.ip.user_ns[cell_args.name]=self
         super(Cell,self).__init__(raw)
 
     def save(self,template=None):
@@ -49,3 +50,4 @@ class StaticCell(Cell):
     def __init__(self,*args,**kwargs):
         super(StaticCell,self).__init__(*args,**kwargs)
         self.data=self.tangle()
+        self.data=self._template.render(cell=self)
