@@ -12,7 +12,8 @@ class Tokenize(object):
         tokens={'html':""""""}
         if block.is_code:
             code=self.render(block.code)
-            tokens.update(block.callback(code))
+            if block.callback:
+                tokens.update(block.callback(code))
             tokens.update({
                 'html': self.env.get_template('weave_code').render(code=self.render(code))+tokens['html'],
             })
