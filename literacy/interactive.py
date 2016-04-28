@@ -12,7 +12,7 @@ class InteractiveCell(Cell):
     auto=False
     def __init__(self, *args, **kwargs):
         self.widgets={}
-        self.auto=kwargs['cell_args'].auto
+        self.auto=kwargs['args'].auto
         super(InteractiveCell,self).__init__(*args, **kwargs)
         self.data=""""""
         if not 'html' in self.widgets:
@@ -25,14 +25,15 @@ class InteractiveCell(Cell):
 
     def update_html(self,*args,**kwargs):
         """tangle the code and update static and dynamic html widget"""
-        self.data=self.tangle()
-        self.data=self._template.render(cell=self)
-        self.widgets['html'].value = self.data
+        self.tangle()
+        self.widgets['html'].value = self._template.render(cell=self)
+
     def update_frontmatter(self,change,*args,**kwargs):
         """Update frontmatter when when the variable changes"""
         self.frontmatter[change['owner'].description]=change['new']
         if self.auto:
             self.update_html()
+
     def attach_widget( self, name, widget=None, abbrev=None, *args, **kwargs ):
         """Utitily function to attach any widget to a cell."""
         if not name in self.widgets:
@@ -46,6 +47,7 @@ class InteractiveCell(Cell):
                 self.widgets[name]=widget
             except:
                 self.widgets[name]=None
+
     def widgetize(self):
         """Create widgets from shorthand and update the front matter"""
         for k, v in self.frontmatter.items():
@@ -53,9 +55,8 @@ class InteractiveCell(Cell):
                 self.attach_widget(k,abbrev=v)
         for k, v in self.widgets.items():
             if not k in ['html'] and hasattr( v, 'value'):
-
                 self.frontmatter[k]=v.value
-    @property
+
     def display(self):
         """Show the widgets"""
         widgets=[self.widgets['html']]

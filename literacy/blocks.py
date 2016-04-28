@@ -5,37 +5,23 @@ class CodeBlock(object):
         In the future I hope to split make cells with the correct indent pattern
         """
         if self.is_code:
-            lines=self.code.split('\n')
-            self.offset = [len(line) - len(line.lstrip()) for line in lines]
-    @property
-    def callback(self):
-        """The callback for the language if it exists"""
-        callbacks=self.env.globals['callback']
-        if self.language in callbacks:
-            return callbacks[self.language]
-        return None
-    @property
-    def language(self):
-        """Get language of the current code block"""
-        lang = self.env.globals['default_lang']
+            lines=self.content.split('\n')
+            self.indent = [len(line) - len(line.lstrip()) for line in lines]
+        self.language = self.env.default_language
         if self.query('code').attr('class'):
-            lang = [c.lstrip(self.env.globals['lang_prefix']) for c in self.query('code').attr('class').split() if c.startswith(self.env.globals['lang_prefix'])][0]
-        return lang
+            self.language = [c.lstrip(self.env.language_prefix)
+                for c in self.query('code').attr('class').split()
+                if c.startswith(self.env.language_prefix)
+            ][0]
+        self.callback = self.env.languages[self.language] if self.language in self.env.languages else None
 
 class Block(CodeBlock):
     """
     A stream of non-code elements or a code element.
     """
     def __init__(self, query,env):
-        self.env,self.query=[env,query]
-    @property
-    def code(self):
-        if self.is_code:
-            return self.query('code').html()
-        return self.query.outerHtml()
-    @property
-    def tag(self):
-        return self.query[0].tag
-    @property
-    def is_code(self):
-        return self.tag in ['pre']
+        self.env,self.query = [env,query]
+        self.tag = self.query[0].tag
+        self.is_code = self.tag in ['pre']
+        self.content = self.query('code').html() if self.is_code else self.query.outerHtml()
+        super(Block, self).__init__()

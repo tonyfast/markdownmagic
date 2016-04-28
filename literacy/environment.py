@@ -14,27 +14,30 @@ class LiterateEnvironment( Environment ):
     """A Jinja Environment and the current notebook state."""
     ip = get_ipython()
     renderer=Markdown(renderer=Renderer(escape=False))
-    def __init__(self,default_lang='python',lang_prefix='lang-', render_template=True,*args,**kwargs):
-        super(LiterateEnvironment,self).__init__(loader=DictLoader({}))
-        self.loader.mapping.update({
-            'default': """{{cell.data}}""",
-            'default_div': """<div id="{{cell.name}}" class='{{cell.classes.strip('"').strip("'")}}'>{{cell.data}}</div>""",
-        })
-        self.globals.update({
-            "default_lang": default_lang,
-            "render_template": render_template,
-            "lang_prefix": lang_prefix,
-            "callback": {
-                'python': lambda code: {
-                    'python': self.ip.run_cell(code),
-                },
-                'html': lambda code: {
-                    'html': code,
-                },
-                'js': lambda code: {
-                    'js': code,
-                },
-                'css': lambda code: {
-                    'css': code,
-                },
-            }})
+    def __init__(self,default_language='python',language_prefix='lang-', render_template=True):
+        super(LiterateEnvironment,self).__init__(
+            loader=DictLoader({
+                'default': """{{cell.data}}""",
+                'default_div': """
+                    <div id="{{cell.name}}" class='{{cell.classes.strip('"').strip("'")}}'>
+                    {{cell.data}}
+                    </div>""",
+            }),
+        )
+        self.default_language, self.render_template, self.language_prefix = [
+            default_language, render_template, language_prefix,
+        ]
+        self.languages = {
+            'python': {
+                'python': self.ip.run_cell,
+            },
+            'html': {
+                'html': lambda s: s,
+            },
+            'js': {
+                'js': lambda s: s,
+            },
+            'css': {
+                'css': lambda s: s,
+            },
+        }

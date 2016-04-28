@@ -1,16 +1,19 @@
+import yaml
 from .blocks import (
     Block,
 )
 from .weave import (
     Weave,
 )
-import yaml
-
+from .query import (
+    PyQueryUTF,
+)
 class Tangle(Weave):
     def tangle(self):
         """Tangle non-code and code blocks."""
-        self.blocks=[]
-        for child in self.query.children().items() if self.query.children() else self.query.items():
+        children=self.query.children()
+        children = self.query if len(children)==1 else children
+        for child in children.items():
             self.blocks.append(Block(child,self.env))
         return self.weave()
 class Processor(Tangle):
@@ -20,6 +23,7 @@ class Processor(Tangle):
     templates=[]
     def __init__(self, raw):
         self.raw, self.frontmatter = [raw, {}]
+        self.query = PyQueryUTF(self.env.renderer(self.raw))
         """Split FrontMatter"""
         if raw.startswith('---\n'):
             frontmatter, content = self.raw.lstrip('---').strip().split('---',1)
