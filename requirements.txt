@@ -4,4 +4,3 @@ lxml
 pyyaml
 mistune
 ipywidgets
-pyyaml
