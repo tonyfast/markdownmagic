@@ -22,7 +22,7 @@ setup(
     license="BSD",
     keywords="IPython markdown commonmark jinja2 template Jupyter",
     url="http://github.com/ContinuumIO/literacy",
-    py_modules=find_packages(),
+    packages=find_packages(),
     long_description=read("README.md"),
     classifiers=[
         "Topic :: Utilities",
