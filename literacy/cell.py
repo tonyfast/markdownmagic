@@ -1,4 +1,4 @@
-from .processor import (
+from .tangle import (
     Processor,
 )
 from .environment import (
@@ -26,9 +26,24 @@ class Cell(Processor, HTML):
         if filename:
             self.filename=filename
         super(Cell,self).__init__(raw)
+
     def save(self,template=None):
         with open(self.filename,'w') as f:
             f.write(self.data)
+
+    def render(self,txt,render_template=False):
+        template=self.env.from_string(txt)
+        if self.env.globals['render_template'] or render_template:
+            data={k:getattr(self.env.ip.user_ns['__builtin__'],k) for k in dir(self.env.ip.user_ns['__builtin__']) if not k.startswith('_')}
+            data.update(self.env.ip.user_ns)
+            data.update(self.frontmatter)
+            return template.render(**data)
+        return txt
+
+    @property
+    def query(self):
+        """"""
+        return PyQueryUTF(self.env.renderer(self.raw))
 
 class StaticCell(Cell):
     def __init__(self,*args,**kwargs):

@@ -3,5 +3,5 @@ pyquery
 lxml
 pyyaml
 mistune
+ipywidgets
 pyyaml
-IPython
