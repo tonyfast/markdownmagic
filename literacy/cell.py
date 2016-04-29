@@ -16,12 +16,14 @@ class Cell(Processor, HTML):
     """
     def __init__(self, raw, args, env=LiterateEnvironment()):
         self.blocks = []
-        self.env, self.name, self.env.globals['this'] = [env, args.name, self]
+        self.env, self.name, self.filename, self.env.globals['this'] = [env, args.name, args.filename, self]
+        # Assign cell args
         self.classes = args.classes
+        # Define template for the cell
         if args.template in ['default'] and (args.classes or self.name):
             args.template = 'default_div'
         self._template = self.env.get_template(args.template)
-        self.filename = args.filename
+
         if args.name:
             self.env.globals[args.name]=self.env.ip.user_ns[args.name]=self
         super(Cell,self).__init__(raw)
@@ -44,11 +46,8 @@ class Cell(Processor, HTML):
             return template.render(**context)
         return txt
 
-        self.data=self.tangle()
-        self.data=self._template.render(cell=self)
-
 class StaticCell(Cell):
     def __init__(self, *args, **kwargs):
         super(StaticCell,self).__init__(*args,**kwargs)
         self.tangle()
-        self.data =self._template.render(cell=self)
+        self.data =self._template.render(cell=self).strip()

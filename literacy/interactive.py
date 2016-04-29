@@ -14,14 +14,14 @@ class InteractiveCell(Cell):
         self.widgets={}
         self.auto=kwargs['args'].auto
         super(InteractiveCell,self).__init__(*args, **kwargs)
-        self.data=""""""
         if not 'html' in self.widgets:
-            self.widgets['html']=HTML(self.data)
+            self.widgets['html']=HTML("")
         if not 'trigger' in self.widgets:
             self.widgets['trigger']=Button(description="""Update cell""")
             self.widgets['trigger'].on_click(callback=self.update_html)
         self.widgetize()
         self.update_html()
+
 
     def update_html(self,*args,**kwargs):
         """tangle the code and update static and dynamic html widget"""

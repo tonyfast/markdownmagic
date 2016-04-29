@@ -20,6 +20,7 @@ from traitlets import (
 @magics_class
 class Literate(Magics):
     files=Dict()
+    languages=Dict()
     def __init__(self, namespace='library', languages={}, templates={}, *args, **kwargs):
         """Created and name a templating environment.  Initialize the magic."""
         super(Literate,self).__init__(*args, **kwargs)
