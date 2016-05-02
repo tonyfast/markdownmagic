@@ -21,6 +21,8 @@ from mistune import (
 )
 class GlobalsTemplate(Template):
     def render(self, **data):
+        """Attach globally variables to the render function.
+        """
         env = self.environment
         data.update( env.globals )
         data.update( env.ip.user_ns  )

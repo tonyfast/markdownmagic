@@ -2,7 +2,8 @@
 # `literacy`
 
 Literate creates a the magic `%%literate` thats allows cells to written in
-literate mardk
+literate markdown.
+
 ## Quickstart
 
 Literacy exposes `%%literate` as a cell magic in the IPython notebook.
