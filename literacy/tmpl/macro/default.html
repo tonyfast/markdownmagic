@@ -1,0 +1,12 @@
+{% if html %}
+{{html}}
+{% else %}
+<br>
+<pre class="{{block.language}}"><code>{{source}}</code></pre>
+{% endif %}
+{% if script %}
+<script>{{script}}</script>
+{% endif %}
+{% if style %}
+<style>{{style}}</style>
+{% endif %}
