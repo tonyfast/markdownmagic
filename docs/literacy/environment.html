@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>environment.py</title>
+  <link rel="stylesheet" href="../docs/pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>environment.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <h1>About <code>environment.py</code></h1>
+<p>The jinja2 environment behind the literate magics.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.macro</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Macros</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Template</span><span class="p">,</span>
+    <span class="n">Environment</span><span class="p">,</span>
+    <span class="n">DictLoader</span><span class="p">,</span>
+    <span class="n">FunctionLoader</span><span class="p">,</span>
+    <span class="n">PrefixLoader</span><span class="p">,</span>
+    <span class="n">PackageLoader</span><span class="p">,</span>
+    <span class="n">FileSystemLoader</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mistune</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Markdown</span><span class="p">,</span>
+    <span class="n">Renderer</span><span class="p">,</span>
+<span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">GlobalsTemplate</span><span class="p">(</span><span class="n">Template</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Attach globally variables to the render function.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">env</span><span class="o">.</span><span class="n">globals</span> <span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">env</span><span class="o">.</span><span class="n">ip</span><span class="o">.</span><span class="n">user_ns</span>  <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">LiterateEnvironment</span><span class="p">(</span> <span class="n">Environment</span> <span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">IPython</span> <span class="kn">import</span><span class="p">(</span>
+        <span class="n">get_ipython</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">Markdown</span><span class="p">(</span><span class="n">renderer</span><span class="o">=</span><span class="n">Renderer</span><span class="p">(</span><span class="n">escape</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span> <span class="n">loader</span> <span class="o">=</span> <span class="n">PrefixLoader</span><span class="p">({</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">PackageLoader</span><span class="p">(</span><span class="s1">&#39;literacy&#39;</span><span class="p">,</span><span class="s1">&#39;/tmpl&#39;</span><span class="p">)</span> <span class="p">,</span>
+                    <span class="s1">&#39;macro&#39;</span><span class="p">:</span> <span class="n">PackageLoader</span><span class="p">(</span><span class="s1">&#39;literacy&#39;</span><span class="p">,</span><span class="s1">&#39;/tmpl/macro&#39;</span><span class="p">)</span> <span class="p">,</span>
+                    <span class="s1">&#39;custom&#39;</span><span class="p">:</span> <span class="n">DictLoader</span><span class="p">({}),</span>
+                <span class="p">}),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_name</span> <span class="o">=</span> <span class="s1">&#39;python&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_class</span> <span class="o">=</span> <span class="n">GlobalsTemplate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">macros</span> <span class="o">=</span> <span class="n">Macros</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">macro</span><span class="p">(</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">macro</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">macro</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">,</span> <span class="n">html</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="o">.</span><span class="n">run_cell</span>
+
+    <span class="k">def</span> <span class="nf">macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">macros</span><span class="o">.</span><span class="n">macro</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">render_cell</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cell</span> <span class="p">):</span>
+        <span class="n">cell</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">cell</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">data</span> <span class="o">+=</span> <span class="n">block</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cell</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>
