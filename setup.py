@@ -37,6 +37,6 @@ setup(
         "Topic :: Software Development :: Testing",
     ],
     install_requires=[
-        "jinja2", "mistune","pyquery","lxml","ipywidgets","pyyaml",
+        "notebook", "pyyaml",
     ]
 )
