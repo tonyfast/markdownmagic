@@ -23,6 +23,9 @@ setup(
     keywords="IPython markdown commonmark jinja2 template Jupyter",
     url="http://github.com/ContinuumIO/literacy",
     packages=find_packages(),
+    package_data={
+        "literacy.tmpl": ['*'],
+    },
     long_description=read("README.md"),
     classifiers=[
         "Topic :: Utilities",
