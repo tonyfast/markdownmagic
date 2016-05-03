@@ -1,1 +1,5 @@
-recursive-include literacy/tmpl *
+recursive-include literacy *.html
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .git

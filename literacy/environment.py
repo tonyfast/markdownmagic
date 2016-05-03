@@ -33,7 +33,7 @@ class LiterateEnvironment( Environment ):
     preprocessor = Markdown(renderer=Renderer(escape=False))
     def __init__(self, *args, **kwargs):
         super().__init__( loader = PrefixLoader({
-                    'macro': PackageLoader('literacy','/tmpl') ,
+                    'macro': PackageLoader('literacy', 'tmpl'),
                     'custom': DictLoader({}),
                 }), *args, **kwargs)
         self.kernel_name = 'python'
