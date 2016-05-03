@@ -40,9 +40,11 @@ class Literate(Magics):
     files=Dict()
     languages=Dict()  #List of lanuages
     def __init__(self,
-        namespace:str= 'library',
+        namespace= 'library',
         macros={},
         templates={},
+        filters = {},
+        render_templates = True,
         *args,
         **kwargs
     ):
@@ -51,7 +53,9 @@ class Literate(Magics):
         self.env=LiterateEnvironment(**kwargs)
         self.env.macros.update(macros)
         self.env.loader.mapping['custom'].mapping.update(templates)
+        self.env.filters.update(filters)
         self.namespace=namespace
+        self.env.globals['render_templates'] = render_templates
         self._register_magic()
 
     def _register_magic(self):
@@ -64,6 +68,10 @@ class Literate(Magics):
     def template(self, name, template_string):
         self.env.loader.mapping['custom'].mapping[name] = template_string
         return 'custom/{}'.format(name)
+
+    def filter(self, name, callback):
+        self.env.filters[name] = callback
+        return self.env.filters[name]
 
     @cell_magic
     @magic_arguments.magic_arguments()

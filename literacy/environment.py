@@ -24,7 +24,7 @@ class GlobalsTemplate(Template):
         env = self.environment
         data.update( env.globals )
         data.update( env.ip.user_ns  )
-        return super().render(**data)
+        return super(GlobalsTemplate, self).render(**data)
 
 class LiterateEnvironment( Environment ):
     from IPython import(
@@ -32,7 +32,7 @@ class LiterateEnvironment( Environment ):
     )
     preprocessor = Markdown(renderer=Renderer(escape=False))
     def __init__(self, *args, **kwargs):
-        super().__init__( loader = PrefixLoader({
+        super(LiterateEnvironment, self).__init__( loader = PrefixLoader({
                     'macro': PackageLoader('literacy', 'tmpl'),
                     'custom': DictLoader({}),
                 }), *args, **kwargs)

@@ -6,7 +6,7 @@ Each cell is a core `IPython` display object.
 from IPython.display import (
     HTML,
 )
-
+import yaml
 class Cell(HTML):
     """Cell is the base class for each cell display.
 
@@ -23,7 +23,7 @@ class Cell(HTML):
         self.macro = self.env.macros['default']
         if self.macro_name in self.env.macros:
             self.macro = self.env.macros[self.macro_name]
-        super().__init__(source)
+        super(Cell,self).__init__(source)
         self.render()
 
 class Block(Cell):
@@ -34,15 +34,16 @@ class Block(Cell):
     def __init__(self, cell, source):
         self.parent = cell
         self.raw = source
-        super().__init__(cell, source)
+        super(Block, self).__init__(cell, source)
 
     def compile(self, source=None):
         """This function is called by `render`.  Template the source code of the block.
 
         If the macro is the kernel language then it is executed.
         """
-        source = self.raw if not source else source
-        self.source = self.env.from_string(source).render(**self.parent.frontmatter)
+        self.source = self.raw if not source else source
+        if self.env.globals['render_templates']:
+            self.source = self.env.from_string(self.source).render(**self.parent.frontmatter)
         if self.macro_name in [self.env.kernel_name]:
             self.env.kernel(self.source)
 
@@ -72,17 +73,17 @@ class FenceBlock(Block):
     fenced = True
     def __init__(self, cell, source = ''):
         self.macro_name = source.split('\n',1)[0].lstrip('```').strip()
-        super().__init__(cell, source)
+        super(FenceBlock, self).__init__(cell, source)
 
     def compile(self):
-        super().compile('\n'.join(self.raw.strip().split('\n')[1:-1]))
+        super(FenceBlock, self).compile('\n'.join(self.raw.strip().split('\n')[1:-1]))
 
 class IndentBlock( Block ):
     """An indented code block.  These code blocks are executed by the kernel.
     """
     def __init__(self, cell, source =''):
         self.macro_name = cell.env.kernel_name
-        super().__init__(cell, source)
+        super(IndentBlock, self).__init__(cell, source)
 
 class ParentCell(Block):
     """The main cell.
@@ -118,3 +119,8 @@ class ParentCell(Block):
                         self.blocks.append(NormalBlock(self,block))
                     self.data += self.blocks[-1].data
         return self.data
+
+    def save(self):
+        if self.filename:
+            with open(self.filename,'w') as f:
+                f.write(self.data)
