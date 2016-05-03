@@ -1,1 +1,1 @@
-include literacy/tmpl *
+recursive-include literacy/tmpl *
