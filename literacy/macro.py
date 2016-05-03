@@ -8,11 +8,12 @@ class Macro():
         self.template_name = template_name
 
     def render(self, block, **data):
-        macro_tokens = {}
+        payload = {}
         for key, macro_function in self.methods.items():
             if not key in [self.env.kernel]:
-                macro_tokens[key] = macro_function(block.source) if macro_function else ""
-        return self.template.render(block=block,**macro_tokens, **data)
+                payload[key] = macro_function(block.source) if macro_function else ""
+        payload.update(data)
+        return self.template.render(block=block, **payload)
 
 
     @property
