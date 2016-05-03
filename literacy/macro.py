@@ -1,3 +1,5 @@
+
+# coding: utf-8
 class Macro():
     def __init__(self, env, template_name = 'macro/default.html', **kwargs):
         self.methods = {
@@ -13,12 +15,11 @@ class Macro():
             if not key in [self.env.kernel]:
                 macro_tokens[key] = macro_function(block.source) if macro_function else ""
         return self.template.render(block=block,**macro_tokens, **data)
-
-
+# 
     @property
     def template(self):
         return self.env.get_template(self.template_name)
-
+# 
 class Macros(dict):
     def __init__(self, env):
         self.env = env

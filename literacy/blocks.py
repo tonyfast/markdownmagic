@@ -1,12 +1,13 @@
-"""Literacy uses cell magics.
 
-Each cell is a core `IPython` display object.
-"""
+# coding: utf-8
 
+# Literacy uses cell magics.
+# 
+# Each cell is a core `IPython` display object.
 from IPython.display import (
     HTML,
 )
-
+# 
 class Cell(HTML):
     """Cell is the base class for each cell display.
 
@@ -25,7 +26,7 @@ class Cell(HTML):
             self.macro = self.env.macros[self.macro_name]
         super().__init__(source)
         self.render()
-
+# 
 class Block(Cell):
     """A Block is either indented or fenced code or html/markdown.
     """
@@ -52,14 +53,14 @@ class Block(Cell):
         self.compile()
         self.data = self.macro.render(block=self, **data)
         return self.data
-
+# 
 class NormalBlock(Block):
     """A markdown cell that injects data through jinja.  Markdown can be escaped
     using `<html>` tags.
     """
     macro_name = 'markdown'
     pass
-
+# 
 class FenceBlock(Block):
     """A gfm styled code fence.
 
@@ -76,14 +77,14 @@ class FenceBlock(Block):
 
     def compile(self):
         super().compile('\n'.join(self.raw.strip().split('\n')[1:-1]))
-
+# 
 class IndentBlock( Block ):
     """An indented code block.  These code blocks are executed by the kernel.
     """
     def __init__(self, cell, source =''):
         self.macro_name = cell.env.kernel_name
         super().__init__(cell, source)
-
+# 
 class ParentCell(Block):
     """The main cell.
     """

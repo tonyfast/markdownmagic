@@ -1,25 +1,26 @@
-"""
-# About `magic.py`
 
-Initialize `%%literate` magic.
+# coding: utf-8
 
-## Syntax
-
-### Basic
-
-    from literate import Literacy
-    Literacy()
-
-## Examples
-
-
-## Input Arguments
-
-- `macros` -
-- `templates` -
-
-## See Also
-"""
+# # About `magic.py`
+# 
+# Initialize `%%literate` magic.
+# 
+# ## Syntax
+# 
+# ### Basic
+# 
+#     from literate import Literacy
+#     Literacy()
+# 
+# ## Examples
+# 
+# 
+# ## Input Arguments
+# 
+# - `macros` -
+# - `templates` -
+# 
+# ## See Also
 from .blocks import (
     ParentCell,
 )
@@ -35,6 +36,7 @@ from IPython.core.magic import (
 from traitlets import (
     Dict,
 )
+# 
 @magics_class
 class Literate(Magics):
     files=Dict()
@@ -64,7 +66,7 @@ class Literate(Magics):
     def template(self, name, template_string):
         self.env.loader.mapping['custom'].mapping[name] = template_string
         return 'custom/{}'.format(name)
-
+# 
     @cell_magic
     @magic_arguments.magic_arguments()
     @magic_arguments.argument( "name", default=None, nargs="?", help="""Name of local variable to set to parsed value""")
