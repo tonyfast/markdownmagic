@@ -10,8 +10,9 @@ from jinja2 import (
     Template,
     Environment,
     DictLoader,
-    PrefixLoader,
+    ChoiceLoader,
     PackageLoader,
+    FileSystemLoader,
 )
 from mistune import (
     Markdown,
@@ -31,11 +32,15 @@ class LiterateEnvironment( Environment ):
         get_ipython,
     )
     preprocessor = Markdown(renderer=Renderer(escape=False))
+    filters_directory = '_filters'
+    macros_directory = '_macros'
+    templates_directory = '_includes' # because jekyll
     def __init__(self, *args, **kwargs):
-        super(LiterateEnvironment, self).__init__( loader = PrefixLoader({
-                    'macro': PackageLoader('literacy', 'tmpl'),
-                    'custom': DictLoader({}),
-                }), *args, **kwargs)
+        super(LiterateEnvironment, self).__init__( loader = ChoiceLoader([
+                    DictLoader({}),
+                    FileSystemLoader(self.templates_directory),
+                    PackageLoader('literacy', 'tmpl'),
+                ]), *args, **kwargs)
         self.kernel_name = 'python'
         self.template_class = GlobalsTemplate
         self.ip = get_ipython()

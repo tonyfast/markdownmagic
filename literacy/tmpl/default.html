@@ -2,7 +2,7 @@
 {{html}}
 {% else %}
 <br>
-<pre class="lang-{{block.macro_name}}"><code>{{source}}</code></pre>
+<pre class="lang-{{block.macro_name}}"><code>{{block.source|e}}</code></pre>
 {% endif %}
 {% if script %}
 <script>{{script}}</script>

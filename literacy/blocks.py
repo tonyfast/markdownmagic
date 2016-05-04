@@ -103,7 +103,7 @@ class ParentCell(Block):
 
     def render(self):
         self.data = ""
-        for ct, fence in enumerate(self.raw.split('```')):
+        for ct, fence in enumerate(self.raw.split('\n```')):
             if (ct % 2) == 1:
                 """ct=0 is false"""
                 self.blocks.append(FenceBlock(self,"```{}```".format(fence)))

@@ -1,34 +1,38 @@
 """
-# `literacy`
+# `literacy` is a magical magic
 
-Literate creates a the magic `%%literate` thats allows cells to written in
-literate markdown.
+`%%literate` Jupyter notebook cells are:
 
-## Quickstart
+* Markdown / HTML
+* Code
+* Templates (_you can put data in your document_.)
 
-Literacy exposes `%%literate` as a cell magic in the IPython notebook.
+## Example
 
-    from literacy import Literate
-    Literate()
+        %%literate cell_name
+        # Three things you need to know.
 
-## Usage
+        ## First - Everything is Markdown, use `<html>` to escape out of it.
 
-    %%literate
-    # This is markdown
+        ## Second - Indented code blocks are executed as normal code
 
-        foo = {'bar': 'baz'}
-        print("\""This indented code block will be
-        executed as Python and define define a variable `foo`"\"")
+            print("This will print to STDOUT")
 
-    # `literate` cells are templates
+        ## Third - GFM codes fences are macros
 
-    Templates allow data to be directly placed into markdown, html, or code. The
-    value of `bar` in `foo` is {{foo.bar}}.
+        The snippet below injects javascript into the template.
 
-        # Templates can be used in code
-        b = "{{foo.bar}}"*5
+        ```javascript
+        console.log("Literacy placed me here.")
+        ```
+# Why literacy
 
-    This is a longer version of `foo.bar` is `{{b}}` without effecting {{foo}}.
+Literacy was designed to put real data in a document.
+
+## What can you do
+
+## What can't you do
+
 
 """
 
