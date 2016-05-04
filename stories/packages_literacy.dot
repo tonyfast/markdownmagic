@@ -1,0 +1,16 @@
+digraph "packages_literacy" {
+charset="utf-8"
+rankdir=BT
+"0" [label="__init__", shape="box"];
+"1" [label="interactive", shape="box"];
+"2" [label="literacy", shape="box"];
+"3" [label="literacy.blocks", shape="box"];
+"4" [label="literacy.environment", shape="box"];
+"5" [label="literacy.macro", shape="box"];
+"6" [label="literacy.magic", shape="box"];
+"7" [label="setup", shape="box"];
+"2" -> "6" [arrowhead="open", arrowtail="none"];
+"4" -> "5" [arrowhead="open", arrowtail="none"];
+"6" -> "3" [arrowhead="open", arrowtail="none"];
+"6" -> "4" [arrowhead="open", arrowtail="none"];
+}

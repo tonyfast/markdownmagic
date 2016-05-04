@@ -1,0 +1,24 @@
+digraph "classes_literacy" {
+charset="utf-8"
+rankdir=BT
+"0" [label="{Block|data\lfenced : bool\lmacro_name : str\lparent\lraw\lsource\l|compile()\lrender()\l}", shape="record"];
+"1" [label="{Cell|classes : str\lenv\lid : str\lmacro\lraw\l|}", shape="record"];
+"2" [label="{FenceBlock|fenced : bool\lmacro_name\l|compile()\l}", shape="record"];
+"3" [label="{GlobalsTemplate|\l|render()\l}", shape="record"];
+"4" [label="{IndentBlock|macro_name\l|}", shape="record"];
+"5" [label="{InteractiveCell|auto\lauto : bool\lwidgets : dict\l|attach_widget()\ldisplay()\lupdate_frontmatter()\lupdate_html()\lwidgetize()\l}", shape="record"];
+"6" [label="{Literate|env\lfiles : Dict\llanguages : Dict\lnamespace : str\lthis\l|literate()\lmacro()\ltemplate()\l}", shape="record"];
+"7" [label="{LiterateEnvironment|kernel\lkernel_name : str\lmacros\lpreprocessor\ltemplate_class\l|macro()\lrender_cell()\l}", shape="record"];
+"8" [label="{Macro|env\lmethods : dict\ltemplate\ltemplate_name : str\l|render()\l}", shape="record"];
+"9" [label="{Macros|env\l|macro()\l}", shape="record"];
+"10" [label="{NormalBlock|macro_name : str\l|}", shape="record"];
+"11" [label="{ParentCell|blocks : list\ldata : str\lenv\lfilename : str\lfrontmatter : dict\lindent : int\lraw\l|render()\l}", shape="record"];
+"0" -> "1" [arrowhead="empty", arrowtail="none"];
+"2" -> "0" [arrowhead="empty", arrowtail="none"];
+"4" -> "0" [arrowhead="empty", arrowtail="none"];
+"10" -> "0" [arrowhead="empty", arrowtail="none"];
+"11" -> "0" [arrowhead="empty", arrowtail="none"];
+"3" -> "7" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="template_class", style="solid"];
+"7" -> "6" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="env", style="solid"];
+"9" -> "7" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="macros", style="solid"];
+}

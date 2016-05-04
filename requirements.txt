@@ -1,7 +1,2 @@
-jinja2
-pyquery
-lxml
-pyyaml
-mistune
-ipywidgets
+notebook
 pyyaml

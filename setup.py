@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def read(fname):
@@ -22,7 +22,7 @@ setup(
     license="BSD",
     keywords="IPython markdown commonmark jinja2 template Jupyter",
     url="http://github.com/ContinuumIO/literacy",
-    py_modules=["literacy"],
+    packages=["literacy"],
     long_description=read("README.md"),
     classifiers=[
         "Topic :: Utilities",
@@ -37,6 +37,7 @@ setup(
         "Topic :: Software Development :: Testing",
     ],
     install_requires=[
-        "jinja2", "mistune","pyquery","lxml","ipywidgets","pyyaml",
-    ]
+        "notebook", "pyyaml",
+    ],
+    include_package_data=True
 )
