@@ -1,24 +1,17 @@
 """
 # About `magic.py`
 
-Initialize `%%literate` magic.
+Initialize `%%jinjamagic` magic.
 
 ## Syntax
 
 ### Basic
 
-    from literate import Literacy
-    Literacy()
+    from jinjamagic import jinjamagic
+    jinjamagic()
 
 ## Examples
 
-
-## Input Arguments
-
-- `macros` -
-- `templates` -
-
-## See Also
 """
 from .blocks import (
     CellBlock,
@@ -48,7 +41,7 @@ class jinjamagic(Magics):
         **kwargs
     ):
         """Created and name a templating environment.  Initialize the magic."""
-        super(jinja_magic, self).__init__(*args, **kwargs)
+        super(jinjamagic, self).__init__(*args, **kwargs)
         self.env = Env(templates, filters)
         self.env.globals['render_templates'] = render_templates
         self.env.ip.register_magics(self)

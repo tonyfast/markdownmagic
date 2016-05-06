@@ -14,15 +14,15 @@ def read(fname):
 
 
 setup(
-    name="literacy",
+    name="jinjamagic",
     version="0.1.0",
     author="Tony Fast",
-    author_email="tony.fast@gmail.com",
+    author_email="tony.fast@continuum.io",
     description="Literate Python Programming with Markdown Template Magic ",
     license="BSD",
     keywords="IPython markdown commonmark jinja2 template Jupyter",
-    url="http://github.com/ContinuumIO/literacy",
-    packages=["literacy"],
+    url="http://github.com/ContinuumIO/jinjamagic",
+    packages=["jinjamagic"],
     long_description=read("README.md"),
     classifiers=[
         "Topic :: Utilities",
