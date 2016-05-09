@@ -1,23 +1,19 @@
-"""
-# About `magic.py`
-
-Initialize `%%jinjamagic` magic.
-
-## Syntax
-
-### Basic
-
-    from jinjamagic import jinjamagic
-    jinjamagic()
-
-## Examples
-
-"""
-from .blocks import (
-    CellBlock,
+from .ext import (
+    LiterateExtension,
 )
-from .environment import (
-    Env,
+from .language import (
+    Language,
+)
+from .widget import (
+    JinjaWidget,
+)
+from jinja2 import (
+    Environment,
+    ChoiceLoader,
+    PackageLoader,
+)
+from IPython.display import (
+    HTML,
 )
 from IPython.core import (
     magic_arguments,
@@ -27,28 +23,56 @@ from IPython.core.magic import (
     magics_class,
     cell_magic,
 )
+from mistune import (
+    Markdown,
+    Renderer,
+)
 
 
 @magics_class
 class jinjamagic(Magics):
     def __init__(
         self,
-        namespace='default',
-        templates={},
-        filters={},
-        render_templates=True,
+        loaders=[],
         *args,
         **kwargs
     ):
         """Created and name a templating environment.  Initialize the magic."""
         super(jinjamagic, self).__init__(*args, **kwargs)
-        self.env = Env(templates, filters)
-        self.env.globals['render_templates'] = render_templates
-        self.env.ip.register_magics(self)
+        self.environment = Environment(loader=ChoiceLoader([
+            *loaders,
+            PackageLoader('jinjamagic', 'tmpl'),
+        ]))
+        self.environment.add_extension(LiterateExtension)
+        self.add_language('source')
+        self.add_language(
+            'markdown',
+            html=Markdown(renderer=Renderer(escape=False)),
+            show_source=False
+        )
+        self.add_language(
+            'html',
+            html=lambda source: source,
+        )
+        self.add_language(
+            'javascript',
+            script=lambda source: source,
+        )
+        self.add_language(
+            'css',
+            style=lambda source: source,
+        )
+        self.environment.ip.register_magics(self)
 
-    @property
-    def render_templates(self):
-        return self.env.globals['render_templates']
+    def add_language(
+        self, language, show_source=True,
+        handler=lambda source: {},
+        **tokens
+    ):
+        self.environment.filters[language] = Language(
+            self.environment, language,
+            show_source=show_source, handler=handler, **tokens
+        )
 
     @cell_magic
     @magic_arguments.magic_arguments()
@@ -60,19 +84,21 @@ class jinjamagic(Magics):
         action="store_true",
         help="""Don't display output.""")
     @magic_arguments.argument(
-        "-c", "--classes", default='',
-        help="""Template for the tangled cell.""")
-    @magic_arguments.argument(
-        "-n", "--namespace", default=None,
-        help="""Template for the tangled cell.""")
-    def jinja(self, line, cell):
+        "-i", "--interact", default=False,
+        action="store_true",
+        help="""Interactive widget view.""")
+    def jinja(self, line, raw):
         line = line.strip()
         args = magic_arguments.parse_argstring(self.jinja, line)
-        cell = CellBlock(self.env, cell, var_name=args.var_name)
-        cell.render()
+        if '```' not in raw:
+            raw += '\n```\n```'
+        template = self.environment.from_string(raw)
+        cell = HTML(template.render())
+        cell.template = template
+        cell.raw = raw
+        if args.interact:
+            cell = JinjaWidget(cell)
+        if args.var_name:
+            self.environment.ip.user_ns[args.var_name] = cell
         if not args.hide:
             return cell
-
-    @property
-    def this(self):
-        return self.env.globals['this']

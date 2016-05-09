@@ -37,7 +37,7 @@ setup(
         "Topic :: Software Development :: Testing",
     ],
     install_requires=[
-        "notebook", "pyyaml",
+        "notebook",
     ],
     include_package_data=True
 )

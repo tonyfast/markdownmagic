@@ -1,12 +1,4 @@
-{% if block.compiled.script -%}
-<script>{{block.compiled.script}}</script>
-{%- endif %}
-{% if block.compiled.style -%}
-  <style>{{block.compiled.style}}</style>
-{%- endif %}
-{% if block.show_source -%}
-<br><pre><code class="{{block.classes}}">{{block.source}}</code></pre>
-{%- endif %}
-{% if block.show_html and block.compiled.html -%}
-  {{block.compiled.html}}
-{%- endif %}
+{%- if show_source and source-%}<br><pre><code>{{source|safe}}</code></pre>{%- endif -%}
+{%- if html -%}{{html|safe}}{%- endif -%}
+{%- if script -%}<script>{{script|safe}}</script>{%- endif %}
+{%- if style -%}<style>{{style|safe}}</style>{%- endif %}
