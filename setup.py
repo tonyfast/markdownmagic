@@ -36,8 +36,5 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Topic :: Software Development :: Testing",
     ],
-    install_requires=[
-        "notebook",
-    ],
     include_package_data=True
 )
