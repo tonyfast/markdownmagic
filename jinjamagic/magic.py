@@ -39,10 +39,13 @@ class jinjamagic(Magics):
     ):
         """Created and name a templating environment.  Initialize the magic."""
         super(jinjamagic, self).__init__(*args, **kwargs)
-        self.environment = Environment(loader=ChoiceLoader([
-            *loaders,
-            PackageLoader('jinjamagic', 'tmpl'),
-        ]))
+        self.environment = Environment(
+            loader=ChoiceLoader([
+                *loaders,
+                PackageLoader('jinjamagic', 'tmpl'),
+            ]))
+        self.environment.default_language = 'markdown'
+        self.environment.add_extension('pyjade.ext.jinja.PyJadeExtension')
         self.environment.add_extension(LiterateExtension)
         self.add_language('source')
         self.add_language(
@@ -99,6 +102,7 @@ class jinjamagic(Magics):
         if args.interact:
             cell = JinjaWidget(cell)
         if args.var_name:
+            self.environment.ip.user_ns[args.var_name] = cell
             self.environment.ip.user_ns[args.var_name] = cell
         if not args.hide:
             return cell

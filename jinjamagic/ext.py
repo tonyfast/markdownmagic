@@ -15,8 +15,14 @@ class IPythonNS(Template):
     """
     def render(self, apply_globals=True, **kwargs):
         if apply_globals:
+            builtin = self.environment.ip.user_ns['__builtin__']
+
             kwargs = {
                 **self.environment.ip.user_ns,
+                **{
+                    name: getattr(builtin, name)
+                    for name in dir(builtin) if not name.startswith('_')
+                },
                 **kwargs,
             }
         return super(IPythonNS, self).render(**kwargs)
