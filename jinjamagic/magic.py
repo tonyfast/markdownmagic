@@ -45,7 +45,7 @@ class jinjamagic(Magics):
                 PackageLoader('jinjamagic', 'tmpl'),
             ]))
         self.environment.default_language = 'markdown'
-        self.environment.add_extension('pyjade.ext.jinja.PyJadeExtension')
+        # self.environment.add_extension('pyjade.ext.jinja.PyJadeExtension')
         self.environment.add_extension(LiterateExtension)
         self.add_language('source')
         self.add_language(
