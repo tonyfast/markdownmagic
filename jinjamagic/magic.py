@@ -4,9 +4,9 @@ from .ext import (
 from .language import (
     Language,
 )
-from .widget import (
-    JinjaWidget,
-)
+# from .widget import (
+#     JinjaWidget,
+# )
 from jinja2 import (
     Environment,
     ChoiceLoader,
@@ -99,8 +99,8 @@ class jinjamagic(Magics):
         cell = HTML(template.render())
         cell.template = template
         cell.raw = raw
-        if args.interact:
-            cell = JinjaWidget(cell)
+        # if args.interact:
+        #     cell = JinjaWidget(cell)
         if args.var_name:
             self.environment.ip.user_ns[args.var_name] = cell
             self.environment.ip.user_ns[args.var_name] = cell
